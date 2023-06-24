@@ -3,6 +3,10 @@ import {useParams} from "react-router-dom";
 import axios from "axios";
 import "./Chat.css";
 
+class Token {
+	token: string;
+}
+
 function Chat() {
 	const {userId} = useParams();
 	const [messages, setMessages] = useState([]);
@@ -13,7 +17,8 @@ function Chat() {
 
 	const fetchMessages = async (userId) => {
 		try {
-			const response = await axios.get(`/api/messages/${userId}`);
+			const data: Token = {token: "asd"};
+			const response = await axios.post(`/api/messages/${userId}`, data);
 			setMessages(response.data);
 		} catch (error) {
 			console.error("Error fetching messages:", error);

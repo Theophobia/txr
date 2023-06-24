@@ -1,0 +1,12 @@
+version: '3'
+services:
+    database:
+        image: postgres
+        ports:
+            - "16738:5432"
+        environment:
+            - POSTGRES_USER=shtips
+            - POSTGRES_PASSWORD=shtips
+            - POSTGRES_DB=shtips
+#        volumes:
+#            - ./init.sql:/docker-entrypoint-initdb.d/init.sql

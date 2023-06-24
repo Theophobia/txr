@@ -7,8 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ShtipsBackendApplication {
 
 	public static void main(String[] args) {
-		System.out.println("Hello, world!");
-		System.out.println("Hello, world!");
 		SpringApplication.run(ShtipsBackendApplication.class, args);
 	}
 
