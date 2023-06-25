@@ -18,7 +18,7 @@ function Chat() {
 	const fetchMessages = async (userId) => {
 		try {
 			const data: Token = {token: "asd"};
-			const response = await axios.post(`/api/messages/${userId}`, data);
+			const response = await axios.post(`/api/message/${userId}`, data);
 			setMessages(response.data);
 		} catch (error) {
 			console.error("Error fetching messages:", error);

@@ -1,5 +1,6 @@
 package me.theophobia.shtipsbackend.controller;
 
+import me.theophobia.shtipsbackend.user.TokenValidityRequest;
 import me.theophobia.shtipsbackend.auth.AuthToken;
 import me.theophobia.shtipsbackend.auth.AuthTokenGenerator;
 import me.theophobia.shtipsbackend.repo.AuthTokenRepo;
@@ -11,10 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Objects;
+import java.util.Optional;
 
 @RestController
-public class UserController {
+@RequestMapping(path = "/api/user")
+public final class UserController {
 
 	@Autowired
 	private AuthTokenRepo authTokenRepo;
@@ -23,17 +25,19 @@ public class UserController {
 	private UserRepo userRepo;
 
 	// User login endpoint
-	@PostMapping("/api/user/login")
+	@PostMapping("/login")
 	public ResponseEntity<String> loginUser(@RequestBody UserLoginRequest request) {
-		User user = null;
+		Optional<User> optionalUser = Optional.empty();
 		switch (request.identifierType()) {
-			case EMAIL -> user = userRepo.findByEmail(request.identifier());
-			case USERNAME -> user = userRepo.findByUsername(request.identifier());
+			case EMAIL -> optionalUser = userRepo.findByEmail(request.identifier());
+			case USERNAME -> optionalUser = userRepo.findByUsername(request.identifier());
 		}
 
-		if (user == null) {
+		if (optionalUser.isEmpty()) {
 			return ResponseEntity.badRequest().body("No such user");
 		}
+
+		User user = optionalUser.get();
 
 		if (!user.getPassword().equals(request.password())) {
 			return ResponseEntity.badRequest().body("Wrong password");
@@ -55,7 +59,7 @@ public class UserController {
 	}
 
 	// User register endpoint
-	@PostMapping("/api/user/register")
+	@PostMapping("/register")
 	public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequest request) {
 		User user = new User();
 
@@ -74,5 +78,20 @@ public class UserController {
 		catch (final Exception e) {
 			return ResponseEntity.badRequest().build();
 		}
+	}
+
+	@GetMapping("/valid")
+	public ResponseEntity<?> isValidToken(@RequestBody TokenValidityRequest request) {
+		Optional<AuthToken> optionalLocalToken = authTokenRepo.findByUserId(request.userId());
+		if (optionalLocalToken.isEmpty()) {
+			return ResponseEntity.badRequest().build();
+		}
+		AuthToken localToken = optionalLocalToken.get();
+
+		if (!localToken.getToken().equals(request.token())) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		return ResponseEntity.ok().build();
 	}
 }

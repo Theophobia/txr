@@ -9,7 +9,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 
-public class AuthTokenGenerator {
+public final class AuthTokenGenerator {
 	private static final long TOKEN_DURATION = Duration.of(3, ChronoUnit.HOURS).toMillis();
 
 	private record Obj(long userId, long timeCreated, long timeExpires) {
@@ -18,12 +18,11 @@ public class AuthTokenGenerator {
 		}
 	}
 
-	public static AuthToken generate(long userId) {
+	public static AuthToken generate(long userId, long timeCreated, long timeExpires) {
 		try {
 			Gson gson = new Gson();
 
-			long currTime = System.currentTimeMillis();
-			Obj obj = new Obj(userId, currTime, currTime + TOKEN_DURATION);
+			Obj obj = new Obj(userId, timeCreated, timeExpires);
 			String message = gson.toJson(obj);
 			String secretKey = "somesecretkey";
 
@@ -47,5 +46,15 @@ public class AuthTokenGenerator {
 		catch (final Exception e) {
 			return null;
 		}
+	}
+
+	public static AuthToken generate(long userId) {
+		long currTime = System.currentTimeMillis();
+		return generate(userId, currTime, currTime + TOKEN_DURATION);
+	}
+
+	public static boolean verify(long userId, long timeCreated, long timeExpires, AuthToken authToken) {
+		AuthToken other = generate(userId, timeCreated, timeExpires);
+		return other != null && other.equals(authToken);
 	}
 }
