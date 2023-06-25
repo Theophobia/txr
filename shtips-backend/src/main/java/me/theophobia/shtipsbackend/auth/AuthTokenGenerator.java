@@ -1,4 +1,4 @@
-package me.theophobia.shtipsbackend;
+package me.theophobia.shtipsbackend.auth;
 
 import com.google.gson.Gson;
 
@@ -8,37 +8,23 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
-import java.util.UUID;
 
-public class AuthToken {
+public class AuthTokenGenerator {
 	private static final long TOKEN_DURATION = Duration.of(3, ChronoUnit.HOURS).toMillis();
 
-	private final Long userId;
-	private final long timeCreated;
-	private final long timeExpires;
-
-	public AuthToken(Long userId) {
-		this.userId = userId;
-		timeCreated = System.currentTimeMillis();
-		timeExpires = timeCreated + TOKEN_DURATION;
+	private record Obj(long userId, long timeCreated, long timeExpires) {
+		public AuthToken toToken(String hmac) {
+			return new AuthToken(userId, timeCreated, timeExpires, hmac);
+		}
 	}
 
-	public Long getUserId() {
-		return userId;
-	}
-
-	public long getTimeCreated() {
-		return timeCreated;
-	}
-
-	public long getTimeExpires() {
-		return timeExpires;
-	}
-
-	public String generate() {
+	public static AuthToken generate(long userId) {
 		try {
 			Gson gson = new Gson();
-			String message = gson.toJson(this);
+
+			long currTime = System.currentTimeMillis();
+			Obj obj = new Obj(userId, currTime, currTime + TOKEN_DURATION);
+			String message = gson.toJson(obj);
 			String secretKey = "somesecretkey";
 
 			// Create a Mac object with the desired HMAC algorithm
@@ -54,10 +40,12 @@ public class AuthToken {
 			byte[] hmacBytes = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
 
 			// Convert the HMAC bytes to a Base64-encoded string
-			return Base64.getEncoder().encodeToString(hmacBytes);
+			String hmac = Base64.getEncoder().encodeToString(hmacBytes);
+
+			return obj.toToken(hmac);
 		}
 		catch (final Exception e) {
-			return "";
+			return null;
 		}
 	}
 }

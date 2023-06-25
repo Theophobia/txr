@@ -1,9 +1,9 @@
 package me.theophobia.shtipsbackend.repo;
 
-import me.theophobia.shtipsbackend.User;
+import me.theophobia.shtipsbackend.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepo extends JpaRepository<User, Long> {
 	User findByUsername(String username);
 	User findByEmail(String email);
 }
