@@ -27,6 +27,7 @@ function Chat() {
 			};
 			const response = await axios.post("http://localhost:8080/api/message/latest", data);
 			setMessages(response.data);
+			// console.log(response.data);
 		} catch (error) {
 			console.error("Error fetching messages:", error);
 		}
@@ -35,8 +36,8 @@ function Chat() {
 	return (
 		<div className="chat">
 			{messages.map((message) => (
-				<div key={message.id} className="chat__message">
-					{/* Render message content and timestamp */}
+				<div key={message.id} className={true ? "chat__message" : "chat__message_other"}>
+					{message.data}
 				</div>
 			))}
 		</div>

@@ -20,6 +20,22 @@ public final class User {
 
 	private String password;
 
+	public User() {
+	}
+
+	public User(String username, String email, String password) {
+		this.username = username;
+		this.email = email;
+		this.password = password;
+	}
+
+	public User(Long id, String username, String email, String password) {
+		this.id = id;
+		this.username = username;
+		this.email = email;
+		this.password = password;
+	}
+
 	public Long getId() {
 		return id;
 	}
@@ -70,6 +86,14 @@ public final class User {
 		}
 
 		return lowercaseCount >= 1 && uppercaseCount >= 1 && digitCount >= 1 && symbolCount >= 1;
+	}
+
+	public boolean passwordMatches(String password) {
+		return this.password.equals(password);
+	}
+
+	public PasswordlessUser toPasswordlessUser() {
+		return new PasswordlessUser(id, email, username);
 	}
 
 	private static boolean isSymbol(char c) {

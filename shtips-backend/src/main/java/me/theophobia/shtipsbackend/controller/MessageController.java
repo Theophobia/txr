@@ -2,16 +2,13 @@ package me.theophobia.shtipsbackend.controller;
 
 import me.theophobia.shtipsbackend.auth.AuthToken;
 import me.theophobia.shtipsbackend.auth.AuthTokenGenerator;
-import me.theophobia.shtipsbackend.message.LatestMessagesRequest;
 import me.theophobia.shtipsbackend.message.Message;
 import me.theophobia.shtipsbackend.message.MessageDataType;
-import me.theophobia.shtipsbackend.message.SendMessageRequest;
 import me.theophobia.shtipsbackend.repo.AuthTokenRepo;
 import me.theophobia.shtipsbackend.repo.MessageRepo;
 import me.theophobia.shtipsbackend.repo.UserRepo;
 import me.theophobia.shtipsbackend.service.MessageService;
 import me.theophobia.shtipsbackend.user.User;
-import me.theophobia.shtipsbackend.util.Tuple3;
 import me.theophobia.shtipsbackend.util.Tuple4;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -41,9 +38,14 @@ public final class MessageController {
 	}
 
 	@PostMapping(path = "/send")
-	public ResponseEntity<?> sendMessage(@RequestBody SendMessageRequest request) {
+	public ResponseEntity<?> sendMessage(
+		@RequestParam long userId,
+		@RequestParam String token,
+		@RequestParam String receiver,
+		@RequestParam String message
+	) {
 
-		var t = resolve(request.userId(), request.receiver(), request.token());
+		var t = resolve(userId, receiver, token);
 
 		// Check if error occurred
 		if (t.d() != null) {
@@ -55,7 +57,7 @@ public final class MessageController {
 		msg.setReceiver(t.b());
 		msg.setTimestamp(OffsetDateTime.now(ZoneOffset.UTC).toLocalDateTime());
 
-		msg.setData(request.message());
+		msg.setData(message);
 		msg.setType(MessageDataType.TEXT);
 
 		messageRepo.save(msg);
@@ -64,16 +66,21 @@ public final class MessageController {
 	}
 
 	@PostMapping(path = "/latest")
-	public ResponseEntity<?> getLatestMessagesWith(@RequestBody LatestMessagesRequest request) {
-
-		var t = resolve(request.userId(), request.receiver(), request.token());
+	public ResponseEntity<?> getLatestMessagesWith(
+		@RequestParam long userId,
+		@RequestParam String token,
+		@RequestParam String receiver,
+		@RequestParam int pageNumber,
+		@RequestParam int pageSize
+	) {
+		var t = resolve(userId, receiver, token);
 
 		// Check if error occurred
 		if (t.d() != null) {
 			return t.d();
 		}
 
-		Pageable pageable = PageRequest.of(request.pageNumber(), request.pageSize()/*, Sort.by("timestamp").descending()*/);
+		Pageable pageable = PageRequest.of(pageNumber, pageSize /*, Sort.by("timestamp").descending()*/);
 
 		return ResponseEntity.ok(messageService.getMessagesBetweenUsers(t.a(), t.b(), pageable).map(Message::toAnonymousMessage).toList());
 	}

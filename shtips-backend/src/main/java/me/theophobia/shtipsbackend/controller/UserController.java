@@ -1,13 +1,12 @@
 package me.theophobia.shtipsbackend.controller;
 
-import me.theophobia.shtipsbackend.user.TokenValidityRequest;
+import me.theophobia.shtipsbackend.service.AuthService;
+import me.theophobia.shtipsbackend.service.UserService;
+import me.theophobia.shtipsbackend.user.*;
 import me.theophobia.shtipsbackend.auth.AuthToken;
 import me.theophobia.shtipsbackend.auth.AuthTokenGenerator;
 import me.theophobia.shtipsbackend.repo.AuthTokenRepo;
 import me.theophobia.shtipsbackend.repo.UserRepo;
-import me.theophobia.shtipsbackend.user.User;
-import me.theophobia.shtipsbackend.user.UserLoginRequest;
-import me.theophobia.shtipsbackend.user.UserRegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,80 +17,73 @@ import java.util.Optional;
 @RequestMapping(path = "/api/user")
 public final class UserController {
 
-	@Autowired
-	private AuthTokenRepo authTokenRepo;
+	private final AuthService authService;
+	private final UserService userService;
 
 	@Autowired
-	private UserRepo userRepo;
+	public UserController(AuthService authService, UserService userService) {
+		this.authService = authService;
+		this.userService = userService;
+	}
 
 	// User login endpoint
 	@PostMapping("/login")
-	public ResponseEntity<String> loginUser(@RequestBody UserLoginRequest request) {
-		Optional<User> optionalUser = Optional.empty();
-		switch (request.identifierType()) {
-			case EMAIL -> optionalUser = userRepo.findByEmail(request.identifier());
-			case USERNAME -> optionalUser = userRepo.findByUsername(request.identifier());
+	public ResponseEntity<String> loginUser(
+		@RequestParam String usernameOrPassword,
+		@RequestParam String password
+	) {
+		Optional<AuthToken> optToken = authService.loginUser(usernameOrPassword, password);
+
+		if (optToken.isEmpty()) {
+			return ResponseEntity.badRequest().build();
 		}
 
-		if (optionalUser.isEmpty()) {
-			return ResponseEntity.badRequest().body("No such user");
-		}
-
-		User user = optionalUser.get();
-
-		if (!user.getPassword().equals(request.password())) {
-			return ResponseEntity.badRequest().body("Wrong password");
-		}
-
-		// Remove existing auth tokens for user
-		authTokenRepo.deleteById(user.getId());
-
-		// Generate new token
-		AuthToken authToken = AuthTokenGenerator.generate(user.getId());
-
-		if (authToken == null) {
-			return ResponseEntity.internalServerError().build();
-		}
-
-		authTokenRepo.save(authToken);
-
-		return ResponseEntity.ok(authToken.getToken());
+		return ResponseEntity.ok(optToken.get().getToken());
 	}
 
 	// User register endpoint
 	@PostMapping("/register")
-	public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequest request) {
-		User user = new User();
+	public ResponseEntity<?> registerUser(
+		@RequestParam String email,
+		@RequestParam String username,
+		@RequestParam String password
+	) {
+		Optional<User> optUser = userService.registerUser(email, username, password);
 
-		user.setEmail(request.email());
-		user.setUsername(request.username());
-		user.setPassword(request.password());
-
-		if (!user.hasStrongPassword()) {
-			return ResponseEntity.badRequest().body("Weak password");
-		}
-
-		try {
-			userRepo.save(user);
-			return ResponseEntity.ok().build();
-		}
-		catch (final Exception e) {
+		if (optUser.isEmpty()) {
 			return ResponseEntity.badRequest().build();
 		}
+
+		return ResponseEntity.ok().body(optUser.get());
 	}
 
 	@GetMapping("/valid")
-	public ResponseEntity<?> isValidToken(@RequestBody TokenValidityRequest request) {
-		Optional<AuthToken> optionalLocalToken = authTokenRepo.findByUserId(request.userId());
-		if (optionalLocalToken.isEmpty()) {
-			return ResponseEntity.badRequest().build();
-		}
-		AuthToken localToken = optionalLocalToken.get();
+	public ResponseEntity<?> isValidToken(
+		@RequestParam long userId,
+		@RequestParam String token
+	) {
+		boolean isValid = authService.isValidToken(userId, token);
 
-		if (!localToken.getToken().equals(request.token())) {
+		if (!isValid) {
 			return ResponseEntity.badRequest().build();
 		}
 
 		return ResponseEntity.ok().build();
+	}
+
+	@GetMapping("/info")
+	public ResponseEntity<?> getUserInfo(
+		@RequestParam long userId,
+		@RequestParam String token
+	) {
+		boolean isValid = authService.isValidToken(userId, token);
+
+		if (!isValid) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		// Token wouldn't be valid if user didn't exist
+		//noinspection OptionalGetWithoutIsPresent
+		return ResponseEntity.ok(userService.getUser(userId).get().toPasswordlessUser());
 	}
 }
