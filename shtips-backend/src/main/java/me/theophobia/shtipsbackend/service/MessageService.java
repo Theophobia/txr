@@ -19,6 +19,6 @@ public final class MessageService {
 	}
 
 	public Page<Message> getMessagesBetweenUsers(User user1, User user2, Pageable pageable) {
-		return messageRepo.findAllBySenderAndReceiverOrSenderAndReceiverOrderByTimestampDesc(user1, user2, user2, user1, pageable);
+		return messageRepo.findAllBySenderAndReceiverOrSenderAndReceiverOrderByTimestampAsc(user1, user2, user2, user1, pageable);
 	}
 }

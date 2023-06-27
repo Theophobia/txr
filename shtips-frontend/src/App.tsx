@@ -11,7 +11,7 @@ function App() {
 			<Router>
 				<Routes>
 					<Route path="/" element={<div/>}/>
-					<Route path="/chat/:userId" element={<Chat/>}/>
+					<Route path="/chat/:username" element={<Chat/>}/>
 				</Routes>
 			</Router>
 		</>

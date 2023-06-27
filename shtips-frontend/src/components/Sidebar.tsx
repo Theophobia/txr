@@ -10,12 +10,12 @@ function Sidebar() {
 	}, []);
 
 	const fetchUsers = async () => {
-		try {
-			const response = await axios.get("/api/users/search");
-			setUsers(response.data);
-		} catch (error) {
-			console.error("Error fetching users:", error);
-		}
+		// try {
+		// 	const response = await axios.get("/api/users/search");
+		// 	setUsers(response.data);
+		// } catch (error) {
+		// 	console.error("Error fetching users:", error);
+		// }
 	};
 
 	return (

@@ -2,23 +2,30 @@ import React, {useState, useEffect} from "react";
 import {useParams} from "react-router-dom";
 import axios from "axios";
 import "./Chat.css";
+import useAuth from "../useAuth";
 
-class Token {
-	token: string;
-}
 
 function Chat() {
-	const {userId} = useParams();
+	const {username} = useParams();
+	const token = useAuth();
 	const [messages, setMessages] = useState([]);
 
 	useEffect(() => {
-		fetchMessages(userId);
-	}, [userId]);
+		if (token.length != 0) {
+			fetchMessages(username);
+		}
+	}, [username, token]);
 
-	const fetchMessages = async (userId) => {
+	const fetchMessages = async (username) => {
 		try {
-			const data: Token = {token: "asd"};
-			const response = await axios.post(`/api/message/${userId}`, data);
+			const data = {
+				userId: 1,
+				token: token,
+				receiver: username,
+				pageNumber: 0,
+				pageSize: 3
+			};
+			const response = await axios.post("http://localhost:8080/api/message/latest", data);
 			setMessages(response.data);
 		} catch (error) {
 			console.error("Error fetching messages:", error);

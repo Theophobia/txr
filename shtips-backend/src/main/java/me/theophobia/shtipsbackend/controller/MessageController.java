@@ -1,6 +1,7 @@
 package me.theophobia.shtipsbackend.controller;
 
 import me.theophobia.shtipsbackend.auth.AuthToken;
+import me.theophobia.shtipsbackend.auth.AuthTokenGenerator;
 import me.theophobia.shtipsbackend.message.LatestMessagesRequest;
 import me.theophobia.shtipsbackend.message.Message;
 import me.theophobia.shtipsbackend.message.MessageDataType;
@@ -62,7 +63,7 @@ public final class MessageController {
 		return ResponseEntity.ok().build();
 	}
 
-	@GetMapping(path = "/latest")
+	@PostMapping(path = "/latest")
 	public ResponseEntity<?> getLatestMessagesWith(@RequestBody LatestMessagesRequest request) {
 
 		var t = resolve(request.userId(), request.receiver(), request.token());
@@ -107,9 +108,18 @@ public final class MessageController {
 		AuthToken localToken = optionalLocalToken.get();
 		result.setC(localToken);
 
-		// TODO: Check if auth token is valid
-		if (!localToken.getToken().equals(token)) {
+		// Check if token is invalid
+		boolean isInvalid = !AuthTokenGenerator.verify(sender.getId(), localToken.getTimeCreated(), localToken.getTimeExpires(), localToken);
+		if (isInvalid || !localToken.getToken().equals(token)) {
 			result.setD(ResponseEntity.badRequest().body("Bad auth token"));
+			return result;
+		}
+
+		// Check if token is expired
+		boolean isExpired = System.currentTimeMillis() > localToken.getTimeExpires();
+		if (isExpired) {
+			authTokenRepo.delete(localToken);
+			result.setD(ResponseEntity.badRequest().body("Expired auth token"));
 			return result;
 		}
 
