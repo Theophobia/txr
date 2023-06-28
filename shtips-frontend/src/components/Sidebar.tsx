@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from "react";
-import axios from "axios";
 import "./Sidebar.css";
 
 function Sidebar() {
@@ -19,7 +18,7 @@ function Sidebar() {
 	};
 
 	return (
-		<div className="sidebar">
+		<div className={"sidebar"}>
 			{users.map((user) => (
 				<div key={user.id} className="sidebar__user">
 					<h3>{user.username}</h3>

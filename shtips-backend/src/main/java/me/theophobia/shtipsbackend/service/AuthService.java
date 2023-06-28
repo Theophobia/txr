@@ -50,6 +50,11 @@ public class AuthService {
 		return optToken;
 	}
 
+	public void logoutUser(User user) {
+		Optional<AuthToken> optToken = authTokenRepo.findByUserId(user.getId());
+		optToken.ifPresent(authTokenRepo::delete);
+	}
+
 	public boolean isValidToken(long userId, String tokenString) {
 		Optional<AuthToken> optToken = authTokenRepo.findByUserId(userId);
 
@@ -70,6 +75,11 @@ public class AuthService {
 		Optional<AuthToken> optToken = authTokenRepo.findByToken(token);
 
 		if (optToken.isEmpty()) {
+			return Optional.empty();
+		}
+
+		if (optToken.get().isExpired()) {
+			authTokenRepo.delete(optToken.get());
 			return Optional.empty();
 		}
 

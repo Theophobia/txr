@@ -39,6 +39,22 @@ public final class UserController {
 		return ResponseEntity.ok(optToken.get().getToken());
 	}
 
+	// TODO: Move to auth controller
+	// User login endpoint
+	@PostMapping("/logout")
+	public ResponseEntity<String> logoutUser(
+		@RequestParam String token
+	) {
+		Optional<User> optUser = authService.getUserByToken(token);
+
+		if (optUser.isEmpty()) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		authService.logoutUser(optUser.get());
+		return ResponseEntity.ok().build();
+	}
+
 	// User register endpoint
 	@PostMapping("/register")
 	public ResponseEntity<?> registerUser(
@@ -64,12 +80,10 @@ public final class UserController {
 	// TODO: Move to auth controller
 	@GetMapping("/valid")
 	public ResponseEntity<?> isValidToken(
-		@RequestParam long userId,
 		@RequestParam String token
 	) {
-		boolean isValid = authService.isValidToken(userId, token);
-
-		if (!isValid) {
+		Optional<User> optUser = authService.getUserByToken(token);
+		if (optUser.isEmpty()) {
 			return ResponseEntity.badRequest().build();
 		}
 

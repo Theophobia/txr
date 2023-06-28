@@ -1,19 +1,27 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
-import axios from "axios/index";
+import { useNavigate } from 'react-router-dom';
 import useAuth from "../useAuth";
 
-const LoginWindow = ({ isOpen, onClose}) => {
+const LoginWindow = () => {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
-	const { loggedIn, userInfo, login, logout } = useAuth();
+
+	const {login} = useAuth();
+	const navigate = useNavigate();
 
 	const handleLogin = async () => {
-		await login(username, password);
+		await login(username, password, () => navigate("/", {token: "asd"}));
+	};
+
+	const handleEnter = async (event) => {
+		if (event.key === "Enter") {
+			await handleLogin();
+		}
 	};
 
 	return (
-		<Modal isOpen={isOpen} onRequestClose={onClose}>
+		<div>
 			<h2>Login</h2>
 			<form>
 				<input
@@ -21,16 +29,18 @@ const LoginWindow = ({ isOpen, onClose}) => {
 					placeholder="Username"
 					value={username}
 					onChange={e => setUsername(e.target.value)}
+					onKeyDown={handleEnter}
 				/>
 				<input
 					type="password"
 					placeholder="Password"
 					value={password}
 					onChange={e => setPassword(e.target.value)}
+					onKeyDown={handleEnter}
 				/>
 				<button type="button" onClick={handleLogin}>Login</button>
 			</form>
-		</Modal>
+		</div>
 	);
 };
 

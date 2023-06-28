@@ -47,6 +47,10 @@ public final class AuthToken {
 		return token;
 	}
 
+	public boolean isExpired() {
+		return System.currentTimeMillis() > timeExpires;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {

@@ -1,80 +1,169 @@
-import {useEffect, useState} from "react";
-import axios from "axios";
+import { useEffect, useState } from 'react';
 
-class PasswordlessUser {
-	userId: number
-	email: string
-	username: string
+interface UserInfo {
+	userId: number;
+	email: string;
+	username: string;
+}
+
+interface AuthResponse {
+	token: string;
+}
+
+interface AuthHook {
+	isLoading: boolean;
+	userInfo: UserInfo | null;
+	logout: (callback?: () => void) => Promise<void>;
+	authToken: string | null;
+	isLoggedIn: boolean;
+	login: (usernameOrEmail: string, password: string, callback?: () => void) => Promise<void>;
+	register: (username: string, email: string, password: string, callback?: () => void) => Promise<void>
 }
 
 const useAuth = () => {
-	const [token, setToken] = useState<null | string>(null);
-	const [userInfo, setUserInfo] = useState<null | PasswordlessUser>(null);
-
-	const [loggedIn, setLoggedIn] = useState(false);
-
-	const login = async (usernameOrEmail: string, password: string) => {
-		try {
-			const data = {usernameOrEmail, password};
-
-			const response = await axios.post('http://localhost:8080/api/user/login', {}, {params: data});
-			const token: string = response.data;
-
-			setLoggedIn(true);
-			setToken(token);
-
-			localStorage.setItem('authToken', token);
-		} catch (error) {
-			// Handle login error
-			console.error('Login failed', error);
-		}
-	};
-
-	const logout = () => {
-		setLoggedIn(false);
-		setUserInfo(null);
-		localStorage.removeItem('authToken');
-	};
-
-	const fetchUserInfo = async () => {
-		try {
-			const data = {token: token};
-			const response = await axios.get('http://localhost:8080/api/user/info', {params: data});
-			const userInfo = response.data;
-			setUserInfo(userInfo);
-		} catch (error) {
-			// Handle fetch user info error
-			console.error('Failed to fetch user info', error);
-		}
-	}
-
-	const register = async (email: string, username: string, password: string) => {
-		try {
-			const data = {
-				email,
-				username,
-				password
-			};
-			const response = await axios.post('http://localhost:8080/api/user/register', {}, {params: data});
-			const token: string = response.data;
-
-			setLoggedIn(true);
-			setToken(token);
-
-			localStorage.setItem('authToken', token);
-		} catch (error) {
-			// Handle registration error
-			console.error('Registration failed', error);
-		}
-	};
+	const [authToken, setAuthToken] = useState<string | null>(null);
+	const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		if (token !== null) {
-			fetchUserInfo().then(r => {});
+		// Check if auth token exists in local storage on initial load
+		const token = localStorage.getItem('authToken');
+		if (token) {
+			setAuthToken(token);
+			checkTokenValidity(token).then(() => {});
 		}
-	}, [token]);
+		else {
+			setIsLoading(false);
+		}
+	}, []);
 
-	return { loggedIn, userInfo, login, logout, register};
+	const checkTokenValidity = async (token: string) => {
+		try {
+			const response = await fetch(`http://localhost:8080/api/user/valid?token=${encodeURIComponent(token)}`);
+			if (response.status === 200) {
+				setIsLoggedIn(true);
+				getUserInfo(token);
+			}
+			else {
+				setIsLoggedIn(false);
+				setAuthToken(null);
+				localStorage.removeItem('authToken');
+			}
+			setIsLoading(false);
+		}
+		catch (error) {
+			console.error('Error checking token validity:', error);
+			setIsLoading(false);
+		}
+	};
+
+	const login = async (usernameOrEmail: string, password: string, callback?: () => void) => {
+		try {
+			const response = await fetch(`http://localhost:8080/api/user/login?usernameOrEmail=${encodeURIComponent(usernameOrEmail)}&password=${encodeURIComponent(password)}`, {
+				method: "POST"
+			});
+			if (response.ok) {
+				const data: AuthResponse = {token: await response.text()};
+				const token = data.token;
+				setAuthToken(token);
+				localStorage.setItem('authToken', token);
+				setIsLoggedIn(true);
+				getUserInfo(token);
+
+				if (callback) {
+					callback();
+				}
+			}
+			else {
+				setIsLoggedIn(false);
+			}
+		}
+		catch (error) {
+			console.error('Error logging in:', error);
+		}
+	};
+
+	const register = async (username: string, email: string, password: string, callback?: () => void) => {
+		try {
+			const response = await fetch(`http://localhost:8080/api/user/register?username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`, {
+				method: "POST"
+			});
+			if (response.ok) {
+				const data: AuthResponse = {token: await response.text()};
+				const token = data.token;
+				setAuthToken(token);
+				localStorage.setItem('authToken', token);
+				setIsLoggedIn(true);
+				getUserInfo(token);
+
+				if (callback) {
+					callback();
+				}
+			}
+			else {
+				setIsLoggedIn(false);
+			}
+		} catch (error) {
+			console.error('Error registering:', error);
+		}
+	};
+
+
+	const logout = async (callback?: () => void) => {
+		try {
+			if (authToken === null) {
+				return;
+			}
+			const response = await fetch(`http://localhost:8080/api/user/logout?token=${encodeURIComponent(authToken)}`, {
+				method: "POST"
+			});
+			if (response.ok) {
+				setAuthToken(null);
+				setUserInfo(null);
+				setIsLoggedIn(false);
+				localStorage.removeItem('authToken');
+
+				if (callback) {
+					callback();
+				}
+			}
+			else {
+				console.error('Error logging out:', response.statusText);
+			}
+		}
+		catch (error) {
+			console.error('Error logging out:', error);
+		}
+	};
+
+	const getUserInfo = async (token: string) => {
+		try {
+			const response = await fetch(`http://localhost:8080/api/user/info?token=${encodeURIComponent(token)}`);
+			if (response.ok) {
+				const data: UserInfo = await response.json();
+				setUserInfo(data);
+			}
+			else {
+				console.error('Error fetching user info:', response.statusText);
+			}
+		}
+		catch (error) {
+			console.error('Error fetching user info:', error);
+		}
+	};
+
+	const res: AuthHook = {
+		authToken,
+		userInfo,
+		isLoggedIn,
+		isLoading,
+		login,
+		register,
+		logout
+	};
+
+	return res;
 };
 
 export default useAuth;

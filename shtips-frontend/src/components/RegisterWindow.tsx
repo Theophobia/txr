@@ -1,20 +1,28 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
-import axios from "axios/index";
+import { useNavigate } from 'react-router-dom';
 import useAuth from "../useAuth";
 
-const LoginWindow = ({ isOpen, onClose}) => {
+const LoginWindow = () => {
 	const [username, setUsername] = useState('');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+
 	const { register } = useAuth();
+	const navigate = useNavigate();
 
 	const handleRegister = async () => {
-		await register(email, username, password);
+		await register(email, username, password, () => navigate("/"));
+	};
+
+	const handleEnter = async (event) => {
+		if (event.key === "Enter") {
+			await handleRegister();
+		}
 	};
 
 	return (
-		<Modal isOpen={isOpen} onRequestClose={onClose}>
+		<div>
 			<h2>Register</h2>
 			<form>
 				<input
@@ -22,22 +30,25 @@ const LoginWindow = ({ isOpen, onClose}) => {
 					placeholder="Email"
 					value={email}
 					onChange={e => setEmail(e.target.value)}
+					onKeyDown={handleEnter}
 				/>
 				<input
 					type="text"
 					placeholder="Username"
 					value={username}
 					onChange={e => setUsername(e.target.value)}
+					onKeyDown={handleEnter}
 				/>
 				<input
 					type="password"
 					placeholder="Password"
 					value={password}
 					onChange={e => setPassword(e.target.value)}
+					onKeyDown={handleEnter}
 				/>
 				<button type="button" onClick={handleRegister}>Register</button>
 			</form>
-		</Modal>
+		</div>
 	);
 };
 

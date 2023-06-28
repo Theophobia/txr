@@ -57,6 +57,9 @@ public final class AuthTokenGenerator {
 		AuthToken other = generate(userId, timeCreated, timeExpires);
 //		System.out.println("other = " + other);
 //		System.out.println("authToken = " + authToken);
-		return other != null && other.equals(authToken);
+
+		boolean res = other != null && other.equals(authToken);
+//		System.out.println("res = " + res);
+		return res;
 	}
 }

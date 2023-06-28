@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriUtils;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -50,7 +51,7 @@ public final class MessageController {
 		@RequestParam String message
 	) {
 
-		var t = resolve(userId, receiver, token);
+		var t = resolve(userId, receiver, UriUtils.decode(token, "UTF-8"));
 
 		// Check if error occurred
 		if (t.d() != null) {
@@ -78,7 +79,7 @@ public final class MessageController {
 		@RequestParam int pageNumber,
 		@RequestParam int pageSize
 	) {
-		var t = resolve(userId, receiver, token);
+		var t = resolve(userId, receiver, UriUtils.decode(token, "UTF-8"));
 
 		// Check if error occurred
 		if (t.d() != null) {
@@ -122,6 +123,9 @@ public final class MessageController {
 
 		// Check if token is invalid
 		boolean isInvalid = !AuthTokenGenerator.verify(sender.getId(), localToken.getTimeCreated(), localToken.getTimeExpires(), localToken);
+//		System.out.println("isInvalid = " + isInvalid);
+//		System.out.println("localToken.getToken() = " + localToken.getToken());
+//		System.out.println("token = " + token);
 		if (isInvalid || !localToken.getToken().equals(token)) {
 			result.setD(ResponseEntity.badRequest().body("Bad auth token"));
 			return result;
