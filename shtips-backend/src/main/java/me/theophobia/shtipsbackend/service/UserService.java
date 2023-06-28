@@ -22,6 +22,7 @@ public class UserService {
 		User user = new User(email, username, password);
 
 		if (!user.hasStrongPassword()) {
+			System.out.println("ERR 1");
 			return Optional.empty();
 		}
 
@@ -29,6 +30,7 @@ public class UserService {
 			userRepo.save(user);
 		}
 		catch (Exception e) {
+			System.out.println("ERR 2");
 			return Optional.empty();
 		}
 

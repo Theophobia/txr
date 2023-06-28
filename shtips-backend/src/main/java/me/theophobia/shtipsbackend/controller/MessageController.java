@@ -30,7 +30,12 @@ public final class MessageController {
 	private final MessageService messageService;
 
 	@Autowired
-	public MessageController(UserRepo userRepo, AuthTokenRepo authTokenRepo, MessageRepo messageRepo, MessageService messageService) {
+	public MessageController(
+		UserRepo userRepo,
+		AuthTokenRepo authTokenRepo,
+		MessageRepo messageRepo,
+		MessageService messageService
+	) {
 		this.userRepo = userRepo;
 		this.authTokenRepo = authTokenRepo;
 		this.messageRepo = messageRepo;
@@ -65,7 +70,7 @@ public final class MessageController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PostMapping(path = "/latest")
+	@GetMapping(path = "/latest")
 	public ResponseEntity<?> getLatestMessagesWith(
 		@RequestParam long userId,
 		@RequestParam String token,

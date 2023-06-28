@@ -4,9 +4,6 @@ import me.theophobia.shtipsbackend.service.AuthService;
 import me.theophobia.shtipsbackend.service.UserService;
 import me.theophobia.shtipsbackend.user.*;
 import me.theophobia.shtipsbackend.auth.AuthToken;
-import me.theophobia.shtipsbackend.auth.AuthTokenGenerator;
-import me.theophobia.shtipsbackend.repo.AuthTokenRepo;
-import me.theophobia.shtipsbackend.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,13 +23,14 @@ public final class UserController {
 		this.userService = userService;
 	}
 
+	// TODO: Move to auth controller
 	// User login endpoint
 	@PostMapping("/login")
 	public ResponseEntity<String> loginUser(
-		@RequestParam String usernameOrPassword,
+		@RequestParam String usernameOrEmail,
 		@RequestParam String password
 	) {
-		Optional<AuthToken> optToken = authService.loginUser(usernameOrPassword, password);
+		Optional<AuthToken> optToken = authService.loginUser(usernameOrEmail, password);
 
 		if (optToken.isEmpty()) {
 			return ResponseEntity.badRequest().build();
@@ -54,9 +52,16 @@ public final class UserController {
 			return ResponseEntity.badRequest().build();
 		}
 
-		return ResponseEntity.ok().body(optUser.get());
+		Optional<AuthToken> optToken = authService.loginUser(email, password);
+
+		if (optToken.isEmpty()) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		return ResponseEntity.ok().body(optToken.get().getToken());
 	}
 
+	// TODO: Move to auth controller
 	@GetMapping("/valid")
 	public ResponseEntity<?> isValidToken(
 		@RequestParam long userId,
@@ -73,17 +78,13 @@ public final class UserController {
 
 	@GetMapping("/info")
 	public ResponseEntity<?> getUserInfo(
-		@RequestParam long userId,
 		@RequestParam String token
 	) {
-		boolean isValid = authService.isValidToken(userId, token);
-
-		if (!isValid) {
+		Optional<User> optUser = authService.getUserByToken(token);
+		if (optUser.isEmpty()) {
 			return ResponseEntity.badRequest().build();
 		}
 
-		// Token wouldn't be valid if user didn't exist
-		//noinspection OptionalGetWithoutIsPresent
-		return ResponseEntity.ok(userService.getUser(userId).get().toPasswordlessUser());
+		return ResponseEntity.ok(optUser.get().toPasswordlessUser());
 	}
 }

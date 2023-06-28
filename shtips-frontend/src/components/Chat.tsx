@@ -7,14 +7,14 @@ import useAuth from "../useAuth";
 
 function Chat() {
 	const {username} = useParams();
-	const token = useAuth();
+	const {token, isTokenReady} = useAuth();
 	const [messages, setMessages] = useState([]);
 
 	useEffect(() => {
-		if (token.length != 0) {
+		if (isTokenReady) {
 			fetchMessages(username);
 		}
-	}, [username, token]);
+	}, [username, isTokenReady]);
 
 	const fetchMessages = async (username) => {
 		try {
@@ -25,7 +25,7 @@ function Chat() {
 				pageNumber: 0,
 				pageSize: 3
 			};
-			const response = await axios.post("http://localhost:8080/api/message/latest", data);
+			const response = await axios.get("http://localhost:8080/api/message/latest", {params: data});
 			setMessages(response.data);
 			// console.log(response.data);
 		} catch (error) {

@@ -65,4 +65,14 @@ public class AuthService {
 
 		return true;
 	}
+
+	public Optional<User> getUserByToken(String token) {
+		Optional<AuthToken> optToken = authTokenRepo.findByToken(token);
+
+		if (optToken.isEmpty()) {
+			return Optional.empty();
+		}
+
+		return userRepo.findById(optToken.get().getUserId());
+	}
 }

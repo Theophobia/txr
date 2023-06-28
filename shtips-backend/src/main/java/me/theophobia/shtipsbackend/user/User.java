@@ -23,16 +23,16 @@ public final class User {
 	public User() {
 	}
 
-	public User(String username, String email, String password) {
-		this.username = username;
+	public User(String email, String username, String password) {
 		this.email = email;
+		this.username = username;
 		this.password = password;
 	}
 
-	public User(Long id, String username, String email, String password) {
+	public User(Long id, String email, String username, String password) {
 		this.id = id;
-		this.username = username;
 		this.email = email;
+		this.username = username;
 		this.password = password;
 	}
 
