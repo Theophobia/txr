@@ -10,7 +10,7 @@ interface AuthResponse {
 	token: string;
 }
 
-interface AuthHook {
+export interface AuthHook {
 	isLoading: boolean;
 	userInfo: UserInfo | null;
 	logout: (callback?: () => void) => Promise<void>;
@@ -40,10 +40,11 @@ const useAuth = () => {
 
 	const checkTokenValidity = async (token: string) => {
 		try {
+			setIsLoading(true);
 			const response = await fetch(`http://localhost:8080/api/user/valid?token=${encodeURIComponent(token)}`);
 			if (response.status === 200) {
 				setIsLoggedIn(true);
-				getUserInfo(token);
+				await getUserInfo(token);
 			}
 			else {
 				setIsLoggedIn(false);
@@ -60,16 +61,20 @@ const useAuth = () => {
 
 	const login = async (usernameOrEmail: string, password: string, callback?: () => void) => {
 		try {
+			setIsLoading(true);
 			const response = await fetch(`http://localhost:8080/api/user/login?usernameOrEmail=${encodeURIComponent(usernameOrEmail)}&password=${encodeURIComponent(password)}`, {
 				method: "POST"
 			});
 			if (response.ok) {
 				const data: AuthResponse = {token: await response.text()};
 				const token = data.token;
+
+				console.log(`Token received from login: ${token}`);
 				setAuthToken(token);
 				localStorage.setItem('authToken', token);
 				setIsLoggedIn(true);
-				getUserInfo(token);
+				setIsLoading(false);
+				await getUserInfo(token);
 
 				if (callback) {
 					callback();
@@ -86,16 +91,19 @@ const useAuth = () => {
 
 	const register = async (username: string, email: string, password: string, callback?: () => void) => {
 		try {
+			setIsLoading(true);
 			const response = await fetch(`http://localhost:8080/api/user/register?username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`, {
 				method: "POST"
 			});
 			if (response.ok) {
 				const data: AuthResponse = {token: await response.text()};
 				const token = data.token;
+
+				console.log(`Token received from register: ${token}`);
 				setAuthToken(token);
 				localStorage.setItem('authToken', token);
 				setIsLoggedIn(true);
-				getUserInfo(token);
+				await getUserInfo(token);
 
 				if (callback) {
 					callback();
@@ -139,10 +147,12 @@ const useAuth = () => {
 
 	const getUserInfo = async (token: string) => {
 		try {
+			setIsLoading(true);
 			const response = await fetch(`http://localhost:8080/api/user/info?token=${encodeURIComponent(token)}`);
 			if (response.ok) {
 				const data: UserInfo = await response.json();
 				setUserInfo(data);
+				setIsLoading(false);
 			}
 			else {
 				console.error('Error fetching user info:', response.statusText);

@@ -11,7 +11,7 @@ const LoginWindow = () => {
 	const navigate = useNavigate();
 
 	const handleLogin = async () => {
-		await login(username, password, () => navigate("/", {token: "asd"}));
+		await login(username, password, () => navigate("/"));
 	};
 
 	const handleEnter = async (event) => {
