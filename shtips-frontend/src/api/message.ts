@@ -1,4 +1,4 @@
-export interface Message {
+export default interface Message {
 	senderUsername: string,
 	timestamp: string,
 	type: "TEXT" | "FILE",

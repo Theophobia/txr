@@ -2,8 +2,9 @@ import {AuthState} from "../state/authState";
 import {useSelector} from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {ChangeEvent, useEffect, useState} from "react";
-import RecentChat from "../api/recentChat";
 import "./Sidebar.css"
+
+import RecentChat from "../api/recentChat";
 
 const Sidebar = () => {
 	const [recentChats, setRecentChats] = useState<RecentChat[]>([]);
@@ -75,14 +76,14 @@ const Sidebar = () => {
 					</div>
 					<div className={"sidebar"}>
 						<div className={"sidebar_chats"}>
-							{recentChats.map(value =>
-								<div key={value.other_person_username}
+							{recentChats.map(chat =>
+								<div key={chat.other_person_username}
 									 className={"sidebar_user"}
-									 onClick={() => navigate("/chat/".concat(value.other_person_username))}
+									 onClick={() => navigate("/chat/".concat(chat.other_person_username))}
 								>
-									{value.other_person_username}
-								</div>)
-							}
+									{chat.other_person_username}
+								</div>
+							)}
 						</div>
 					</div>
 				</>
