@@ -1,6 +1,7 @@
 package me.theophobia.shtipsbackend.message;
 
 import jakarta.persistence.*;
+import me.theophobia.shtipsbackend.RecentChat;
 import me.theophobia.shtipsbackend.user.User;
 
 import java.time.LocalDateTime;
@@ -94,6 +95,16 @@ public final class Message {
 			type,
 			data,
 			bonusData
+		);
+	}
+
+	public RecentChat toRecentChat(Long userId) {
+		return new RecentChat(
+			sender.getId().equals(userId) ? receiver.getUsername() : sender.getUsername(),
+			timestamp,
+			data,
+			bonusData,
+			type
 		);
 	}
 }

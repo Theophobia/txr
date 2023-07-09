@@ -1,7 +1,32 @@
 .sidebar {
-	width: 20vw;
-	height: 100vh;
-	overflow-y: auto;
+	width: 15vw;
+	height: calc(100vh - 58px);
 
-	background-color: gray;
+	font-family: Arial, monospace;
+}
+
+.sidebar_user {
+	height: 3rem;
+
+	border: 2px dashed gray;
+	border-radius: 3px;
+
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.search_root {
+	width: 15vw;
+
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+.search_input {
+	border: 2px;
+	width: calc(15vw - 4px);
+}
+
+.sidebar_root {
+	border-right: 5px solid gray;
 }

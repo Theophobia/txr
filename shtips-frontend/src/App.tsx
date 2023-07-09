@@ -1,11 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {BrowserRouter as Router, Routes, Route, useNavigate} from "react-router-dom";
-import Sidebar from "./components/Sidebar";
-import Chat from "./components/Chat";
-import LoginWindow from "./components/LoginWindow";
-import RegisterWindow from "./components/RegisterWindow";
-import MainPage from "./components/MainPage";
 import "./App.css";
+import LoginPage from "./components/LoginPage";
+import MainPage from "./components/MainPage";
+import Chat from "./components/Chat";
+import Sidebar from "./components/Sidebar";
 
 function App() {
 
@@ -15,8 +14,8 @@ function App() {
 				<Sidebar/>
 				<Routes>
 					<Route path="/" element={<MainPage/>}/>
-					<Route path="/login" element={<LoginWindow/>} />
-					<Route path="/register" element={<RegisterWindow/>} />
+					<Route path="/login" element={<LoginPage/>} />
+					{/*<Route path="/register" element={<RegisterWindow/>} />*/}
 					<Route path="/chat/:username" element={<Chat/>}/>
 				</Routes>
 			</Router>

@@ -1,43 +1,34 @@
-import LoginButton from "./LoginButton";
-import RegisterButton from "./RegisterButton";
-import React, {useContext, useEffect} from "react";
-import useAuth from "../useAuth";
-import {AuthContext} from "../AuthContext";
+import {useDispatch, useSelector} from "react-redux";
+import { useNavigate } from "react-router-dom";
+import UserData from "../api/userData";
+import {AuthState} from "../state/authState";
+import {loginSuccess, logout} from "../state/authActions";
+import React from "react";
+import Sidebar from "./Sidebar";
+import {sidebarHidden} from "../state/visibilityActions";
 
 const MainPage = () => {
+	// const userData: UserData | null = useSelector((state) => state.authentication.userData);
+	const auth: AuthState = useSelector((state) => state.auth);
 
-	// const {isLoggedIn, isLoading, userInfo, logout} = useAuth();
-	const auth = useContext(AuthContext);
+	const dispatch = useDispatch();
+	const navigate = useNavigate();
 
-	const handleLogout = () => {
-		auth?.logout().then(() => {});
-		// logout().then(() => {});
+	const dispatchLogout = async () => {
+		dispatch(logout());
+		dispatch(sidebarHidden());
 	};
 
-	useEffect(() => {}, [auth?.isLoading]);
-
 	return (
-		<div className={"main"}>
-		<h1>My App</h1>
-			{console.log("Entering main page")}
-			{console.log(`auth = ${auth}`)}
-			{console.log(`auth?.isLoggedIn = ${auth?.isLoggedIn}`)}
-			{console.log(`auth?.isLoading = ${auth?.isLoading}`)}
-			{console.log(`auth?.authToken = ${auth?.authToken}`)}
 		<div>
-			{auth === null ? <div></div> : auth.isLoggedIn ? (
+			{auth.isLoggedIn ?
 				<div>
-					<p>Welcome, {auth.userInfo?.username}!</p>
-					<button onClick={handleLogout}>Logout</button>
+					<button onClick={() => dispatchLogout()}>Log out</button>
 				</div>
-			): (
-				<div>
-					<LoginButton/>
-					<RegisterButton/>
-				</div>
-			)}
+				:
+				<div>Not logged in!</div>}
 		</div>
-	</div>);
-}
+	);
+};
 
 export default MainPage;

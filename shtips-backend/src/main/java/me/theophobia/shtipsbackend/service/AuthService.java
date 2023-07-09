@@ -55,20 +55,34 @@ public class AuthService {
 		optToken.ifPresent(authTokenRepo::delete);
 	}
 
-	public boolean isValidToken(long userId, String tokenString) {
+	public boolean isInvalidToken(long userId, String tokenString) {
 		Optional<AuthToken> optToken = authTokenRepo.findByUserId(userId);
 
 		if (optToken.isEmpty()) {
-			return false;
+			return true;
 		}
 
 		AuthToken a = optToken.get();
+//		System.out.println("a = " + a);
+//		System.out.println("a.getToken() = " + a.getToken());
+//		System.out.println("tokenString = " + tokenString);
 
-		if (a.getToken().equals(tokenString)) {
-			return false;
+		if (!a.getToken().equals(tokenString)) {
+			return true;
 		}
 
-		return true;
+//		System.out.println("a.isExpired() = " + a.isExpired());
+		if (a.isExpired()) {
+			return true;
+		}
+
+		boolean isInvalid = !AuthTokenGenerator.verify(userId, a.getTimeCreated(), a.getTimeExpires(), a);
+//		System.out.println("isInvalid = " + isInvalid);
+		if (isInvalid) {
+			return true;
+		}
+
+		return false;
 	}
 
 	public Optional<User> getUserByToken(String token) {
