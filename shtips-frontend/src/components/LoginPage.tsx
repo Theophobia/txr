@@ -5,6 +5,8 @@ import {loginSuccess} from "../state/authActions";
 import {useDispatch, useSelector} from "react-redux";
 import {sidebarShown} from "../state/visibilityActions";
 import {AuthState} from "../state/authState";
+import apiUserLogin = Query.apiUserLogin;
+import apiUserInfo = Query.apiUserInfo;
 
 function LoginPage() {
 	const [usernameOrEmail, setUsernameOrEmail] = useState<string | null>(null);
@@ -23,24 +25,25 @@ function LoginPage() {
 
 		try {
 			// Send authentication request
-			const authResponse = await fetch(`http://localhost:8080/api/user/login
-			?usernameOrEmail=${encodeURIComponent(usernameOrEmail)}
-			&password=${encodeURIComponent(password)}`, {
-				method: "POST"
-			});
+			const response = await apiUserLogin(usernameOrEmail, password);
 
-			if (!authResponse.ok) {
+			if (response === null) {
+				throw new Error();
+			}
+
+			if (!response.ok) {
 				return;
 			}
 
 			// Extract the token from the response
-			const token: string = await authResponse.text();
+			const token: string = await response.text();
 
 			// Send request to fetch user data
-			const userDataResponse = await fetch(`http://localhost:8080/api/user/info
-			?token=${encodeURIComponent(token)}`, {
-				method: "GET"
-			});
+			const userDataResponse = await apiUserInfo(token);
+
+			if (userDataResponse === null) {
+				throw new Error();
+			}
 
 			// Extract the user data from the response
 			const user: UserData = await userDataResponse.json();

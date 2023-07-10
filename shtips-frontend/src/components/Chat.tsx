@@ -1,13 +1,14 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from "./Sidebar";
 import {useEffect, useState} from "react";
-import {Message} from "../api/message";
+import Message from "../api/message";
 import "./Chat.css";
 import UserData from "../api/userData";
 import {loginSuccess, logout} from "../state/authActions";
 import {sidebarShown} from "../state/visibilityActions";
 import {AuthState} from "../state/authState";
 import {useDispatch, useSelector} from "react-redux";
+import apiChatMessageGet = Query.apiChatMessageGet;
 
 const Chat = () => {
 	const {username} = useParams();
@@ -32,18 +33,14 @@ const Chat = () => {
 
 		try {
 			// Send authentication request
-			const response = await fetch(`http://localhost:8080/api/chat/message/get
-			?userId=${encodeURIComponent(auth.userData.userId)}
-			&token=${encodeURIComponent(auth.token)}
-			&receiver=${encodeURIComponent(username)}
-			&pageNumber=${0}
-			&pageSize=${20}
-			`, {
-				method: "GET"
-			});
+			const response = await apiChatMessageGet(auth.userData.userId, auth.token, auth.userData.username, 0, 20);
+
+			if (response === null) {
+				throw new Error();
+			}
 
 			if (response.status === 401) {
-				console.log("Expired auth token, logging out");
+				// console.log("Expired auth token, logging out");
 				dispatch(logout());
 				// TODO send query to server for logging out
 				return;
@@ -77,13 +74,14 @@ const Chat = () => {
 				<div className={"chat_header"}>{username}</div>
 				<div className={"chat_container"}>
 					{messages.map(m =>
-						<div className={m.senderUsername === username ? "msg_outer_box_me" : "msg_outer_box_other"}>
-							<div key={m.timestamp.concat(m.senderUsername)}
-								 className={m.senderUsername === username ? "msg_any msg_me" : "msg_any msg_other"}
-							>
+						<div key={m.timestamp.concat(m.senderUsername)}
+							 className={m.senderUsername === username ? "msg_outer_box_me" : "msg_outer_box_other"}
+						>
+							<div className={m.senderUsername === username ? "msg_any msg_me" : "msg_any msg_other"}>
 								{m.data}
 							</div>
-						</div>)}
+						</div>
+					)}
 				</div>
 			</div>
 		}</>

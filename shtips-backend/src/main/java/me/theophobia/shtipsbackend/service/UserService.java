@@ -1,9 +1,10 @@
 package me.theophobia.shtipsbackend.service;
 
+import me.theophobia.shtipsbackend.repo.UserAvatarRepo;
 import me.theophobia.shtipsbackend.repo.UserRepo;
 import me.theophobia.shtipsbackend.user.User;
+import me.theophobia.shtipsbackend.user.UserAvatar;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -12,10 +13,12 @@ import java.util.Optional;
 public class UserService {
 
 	private final UserRepo userRepo;
+	private final UserAvatarRepo userAvatarRepo;
 
 	@Autowired
-	public UserService(UserRepo userRepo) {
+	public UserService(UserRepo userRepo, UserAvatarRepo userAvatarRepo) {
 		this.userRepo = userRepo;
+		this.userAvatarRepo = userAvatarRepo;
 	}
 
 	public Optional<User> registerUser(String email, String username, String password) {
@@ -39,5 +42,21 @@ public class UserService {
 
 	public Optional<User> getUser(long userId) {
 		return userRepo.findById(userId);
+	}
+
+	public Optional<User> getUserByUsername(String username) {
+		return userRepo.findByUsername(username);
+	}
+
+	public Optional<User> getUserByEmail(String email) {
+		return userRepo.findByEmail(email);
+	}
+
+	public Optional<UserAvatar> getUserAvatar(long userId) {
+		return userAvatarRepo.findByUser_Id(userId);
+	}
+
+	public Optional<UserAvatar> getUserAvatar(User user) {
+		return userAvatarRepo.findByUser(user);
 	}
 }

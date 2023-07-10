@@ -1,14 +1,18 @@
 import {AuthState} from "../state/authState";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {ChangeEvent, useEffect, useState} from "react";
 import "./Sidebar.css"
 
 import RecentChat from "../api/recentChat";
+import {logout} from "../state/authActions";
+import apiChatRecent = Query.apiChatRecent;
 
 const Sidebar = () => {
 	const [recentChats, setRecentChats] = useState<RecentChat[]>([]);
 	const [searchedUser, setSearchedUser] = useState<null | string>(null);
+
+	const dispatch = useDispatch();
 	const navigate = useNavigate();
 
 	const auth: AuthState = useSelector((state) => state.auth);
@@ -23,15 +27,18 @@ const Sidebar = () => {
 			if (auth.userData === null || auth.token === null) {
 				return;
 			}
+
 			// Send authentication request
-			const authResponse = await fetch(`http://localhost:8080/api/chat/recent
-			?userId=${auth.userData.userId}
-			&token=${encodeURIComponent(auth.token)}`, {
-				method: "GET"
-			});
+			const authResponse = await apiChatRecent(auth.userData.userId, auth.token);
+
+			if (authResponse === null) {
+				throw new Error();
+			}
 
 			if (authResponse.status === 401) {
-				console.log("Should logout, invalid auth token");
+				// console.log("Should logout, invalid auth token");
+				dispatch(logout());
+				// TODO: send api query
 				return;
 			}
 

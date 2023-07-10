@@ -4,10 +4,9 @@ import me.theophobia.shtipsbackend.RecentChat;
 import me.theophobia.shtipsbackend.auth.AuthToken;
 import me.theophobia.shtipsbackend.message.Message;
 import me.theophobia.shtipsbackend.message.MessageDataType;
-import me.theophobia.shtipsbackend.repo.MessageRepo;
-import me.theophobia.shtipsbackend.repo.UserRepo;
 import me.theophobia.shtipsbackend.service.AuthService;
 import me.theophobia.shtipsbackend.service.MessageService;
+import me.theophobia.shtipsbackend.service.UserService;
 import me.theophobia.shtipsbackend.user.User;
 import me.theophobia.shtipsbackend.util.Tuple4;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,22 +25,19 @@ import java.util.Optional;
 @RequestMapping(path = "/api/chat")
 public final class ChatController {
 
-	private final UserRepo userRepo;
-	private final MessageRepo messageRepo;
 	private final MessageService messageService;
 	private final AuthService authService;
+	private final UserService userService;
 
 	@Autowired
 	public ChatController(
-		UserRepo userRepo,
-		MessageRepo messageRepo,
 		MessageService messageService,
-		AuthService authService)
+		AuthService authService,
+		UserService userService)
 	{
-		this.userRepo = userRepo;
-		this.messageRepo = messageRepo;
 		this.messageService = messageService;
 		this.authService = authService;
+		this.userService = userService;
 	}
 
 	@PostMapping(path = "/message/send")
@@ -70,7 +66,8 @@ public final class ChatController {
 		msg.setData(message);
 		msg.setType(MessageDataType.TEXT);
 
-		messageRepo.save(msg);
+		messageService.saveMessage(msg);
+
 
 		return ResponseEntity.ok().build();
 	}
@@ -117,7 +114,7 @@ public final class ChatController {
 		final Tuple4<User, User, AuthToken, ResponseEntity<?>> result = new Tuple4<>();
 
 		// Attempt to find receiver
-		Optional<User> optionalReceiver = userRepo.findByUsername(receiverUsername);
+		Optional<User> optionalReceiver = userService.getUserByUsername(receiverUsername);
 		if (optionalReceiver.isEmpty()) {
 			result.setD(ResponseEntity.badRequest().body("Unknown receiver"));
 			return result;
@@ -126,7 +123,7 @@ public final class ChatController {
 		result.setB(receiver);
 
 		// Attempt to find sender
-		Optional<User> optionalSender = userRepo.findById(userId);
+		Optional<User> optionalSender = userService.getUser(userId);
 		if (optionalSender.isEmpty()) {
 			result.setD(ResponseEntity.badRequest().body("Unknown sender"));
 			return result;
