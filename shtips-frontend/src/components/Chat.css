@@ -22,12 +22,17 @@
 	text-align: right;
 	display: flex;
 	justify-content: flex-end;
+
+	padding-bottom: 10px;
+	padding-right: 5px;
 }
 
 .msg_outer_box_other {
 	text-align: left;
 	display: flex;
+
 	padding-bottom: 10px;
+	padding-left: 5px;
 }
 
 .chat_header {
@@ -39,4 +44,30 @@
 
 .chat_root {
 	width: 100%;
+}
+
+.chat_container {
+	overflow: auto;
+	max-height: 90vh;
+}
+
+.chat_input_box {
+	height: calc(10vh - 20px);
+	display: flex;
+	justify-content: center;
+
+}
+
+.chat_input {
+	height: calc(9vh - 30px);
+	width: calc(60vw);
+
+	display: flex;
+	text-align: start;
+
+	border: none;
+	border-radius: 8px;
+	text-indent: 4px;
+
+
 }

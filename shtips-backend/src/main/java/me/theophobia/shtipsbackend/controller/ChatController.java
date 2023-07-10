@@ -1,9 +1,9 @@
 package me.theophobia.shtipsbackend.controller;
 
-import me.theophobia.shtipsbackend.RecentChat;
+import me.theophobia.shtipsbackend.chat.RecentChat;
 import me.theophobia.shtipsbackend.auth.AuthToken;
-import me.theophobia.shtipsbackend.message.Message;
-import me.theophobia.shtipsbackend.message.MessageDataType;
+import me.theophobia.shtipsbackend.chat.Message;
+import me.theophobia.shtipsbackend.chat.MessageDataType;
 import me.theophobia.shtipsbackend.service.AuthService;
 import me.theophobia.shtipsbackend.service.MessageService;
 import me.theophobia.shtipsbackend.service.UserService;

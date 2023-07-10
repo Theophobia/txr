@@ -1,6 +1,4 @@
-package me.theophobia.shtipsbackend;
-
-import me.theophobia.shtipsbackend.message.MessageDataType;
+package me.theophobia.shtipsbackend.chat;
 
 import java.time.LocalDateTime;
 

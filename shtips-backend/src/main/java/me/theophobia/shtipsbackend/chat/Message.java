@@ -1,7 +1,6 @@
-package me.theophobia.shtipsbackend.message;
+package me.theophobia.shtipsbackend.chat;
 
 import jakarta.persistence.*;
-import me.theophobia.shtipsbackend.RecentChat;
 import me.theophobia.shtipsbackend.user.User;
 
 import java.time.LocalDateTime;

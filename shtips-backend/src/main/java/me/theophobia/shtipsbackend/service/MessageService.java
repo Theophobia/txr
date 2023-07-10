@@ -1,7 +1,7 @@
 package me.theophobia.shtipsbackend.service;
 
-import me.theophobia.shtipsbackend.RecentChat;
-import me.theophobia.shtipsbackend.message.Message;
+import me.theophobia.shtipsbackend.chat.RecentChat;
+import me.theophobia.shtipsbackend.chat.Message;
 import me.theophobia.shtipsbackend.repo.MessageRepo;
 import me.theophobia.shtipsbackend.user.User;
 import org.springframework.beans.factory.annotation.Autowired;

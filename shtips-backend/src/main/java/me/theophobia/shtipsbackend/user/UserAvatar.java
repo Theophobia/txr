@@ -8,14 +8,14 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 
 @Entity
-public class UserAvatar {
+public final class UserAvatar {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@OneToOne
-	@JoinColumn(name = "user__id")
+	@JoinColumn(name = "user_id")
 	private User user;
 
 	@Column(columnDefinition = "bytea")

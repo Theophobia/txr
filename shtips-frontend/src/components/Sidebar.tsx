@@ -68,22 +68,22 @@ const Sidebar = () => {
 	}
 
 	return (
-		<div className={"sidebar_root"}>
+		<>
 			{!auth.isLoggedIn || !isVisible ?
 				<>
 				</>
 				:
 				<>
-					<div className={"search_root"}>
-						<input onChange={(event) => updateSearchedUser(event)}
-							   onClick={() => searchForUser()}
-							   placeholder={"Search"}
-							   className={"search_input"}
-						/>
-					</div>
 					<div className={"sidebar"}>
+						<div className={"search_root"}>
+							<input onChange={(event) => updateSearchedUser(event)}
+								   onClick={() => searchForUser()}
+								   placeholder={"Search"}
+								   className={"search_input"}
+							/>
+						</div>
 						<div className={"sidebar_chats"}>
-							{recentChats.map(chat =>
+							{recentChats.map((chat) =>
 								<div key={chat.other_person_username}
 									 className={"sidebar_user"}
 									 onClick={() => navigate("/chat/".concat(chat.other_person_username))}
@@ -95,7 +95,7 @@ const Sidebar = () => {
 					</div>
 				</>
 			}
-		</div>
+		</>
 	);
 };
 

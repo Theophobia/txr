@@ -20,7 +20,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "/api/test")
-public class TestController {
+public final class TestController {
 
 	private final MessageService messageService;
 	private final AuthService authService;

@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import {useEffect, useState} from "react";
+import {useEffect, useState, Suspense, useReducer, useRef} from "react";
 import Message from "../api/message";
 import "./Chat.css";
 import {logout} from "../state/authActions";
@@ -12,6 +12,8 @@ const Chat = () => {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [message, setMessage] = useState("");
 	const [shouldRefetch, setShouldRefetch] = useState(false);
+	const [show, setShow] = useState(false);
+	const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
@@ -19,6 +21,7 @@ const Chat = () => {
 	const auth: AuthState = useSelector((state) => state.auth);
 
 	const fetchMessages = async () => {
+		setShow(false);
 
 		if (auth.userData === null) {
 			console.log("User data is null, returning");
@@ -50,8 +53,20 @@ const Chat = () => {
 			}
 
 			const data: Message[] = await response.json();
-			setMessages(data);
-			console.log(data);
+			const messagesCopy = messages;
+
+			data.forEach((m) => {
+				if (!messagesCopy.find((value) => value.timestamp === m.timestamp && value.senderUsername === m.senderUsername)) {
+					messagesCopy.push(m);
+				}
+			});
+			messagesCopy.sort((a, b) => {
+				return a.timestamp.concat(a.senderUsername).localeCompare(b.timestamp.concat(b.senderUsername))
+			});
+
+			setMessages(messagesCopy);
+			setShow(true);
+			// console.log(data);
 		}
 		catch (error) {
 			// Handle authentication error
@@ -80,12 +95,17 @@ const Chat = () => {
 		event.target.value = "";
 	}
 
+	const scrollToBottom = () => {
+		// noinspection TypeScriptValidateTypes
+		messagesEndRef.current?.scrollIntoView();
+	}
+
 	useEffect(() => {
 		if (!auth.isLoggedIn) {
 			navigate("/");
 			return;
 		}
-		fetchMessages();
+		fetchMessages().then(scrollToBottom);
 	}, [username]);
 
 	useEffect(() => {
@@ -104,7 +124,7 @@ const Chat = () => {
 			<div className={"chat_root"}>
 				<div className={"chat_header"}>{username}</div>
 				<div className={"chat_container"}>
-					{messages.map(m =>
+					{show && messages.length !== 0 && messages.map((m) =>
 						<div key={m.timestamp.concat(m.senderUsername)}
 							 className={m.senderUsername === username ? "msg_outer_box_other" : "msg_outer_box_me"}
 						>
@@ -115,9 +135,11 @@ const Chat = () => {
 							{m.senderUsername === username ? <></> : <img src={`http://localhost:8080/api/test/getAvatar?username=${auth.userData?.username}`}></img>}
 						</div>
 					)}
+					<div ref={messagesEndRef}></div>
 				</div>
-				<div className={"chat_input"}>
-					<input onKeyDown={(event) => sendMessage(event)}
+				<div className={"chat_input_box"}>
+					<textarea className={"chat_input"}
+						   onKeyDown={(event) => sendMessage(event)}
 						   onChange={(event) => setMessage(event.target.value)}
 					/>
 				</div>

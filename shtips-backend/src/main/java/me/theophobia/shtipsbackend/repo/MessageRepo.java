@@ -1,7 +1,6 @@
 package me.theophobia.shtipsbackend.repo;
 
-import me.theophobia.shtipsbackend.RecentChat;
-import me.theophobia.shtipsbackend.message.Message;
+import me.theophobia.shtipsbackend.chat.Message;
 import me.theophobia.shtipsbackend.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,9 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public interface MessageRepo extends JpaRepository<Message, Long> {
 //	Page<Message> findAllByOrderByTimestampDesc(Pageable pageable);

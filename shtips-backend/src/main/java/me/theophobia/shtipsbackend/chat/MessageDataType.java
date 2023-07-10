@@ -1,4 +1,4 @@
-package me.theophobia.shtipsbackend.message;
+package me.theophobia.shtipsbackend.chat;
 
 public enum MessageDataType {
 	TEXT, FILE
