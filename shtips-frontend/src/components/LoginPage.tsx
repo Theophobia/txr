@@ -5,8 +5,7 @@ import {loginSuccess} from "../state/authActions";
 import {useDispatch, useSelector} from "react-redux";
 import {sidebarShown} from "../state/visibilityActions";
 import {AuthState} from "../state/authState";
-import apiUserLogin = Query.apiUserLogin;
-import apiUserInfo = Query.apiUserInfo;
+import {apiUserInfo, apiUserLogin} from "../query";
 
 function LoginPage() {
 	const [usernameOrEmail, setUsernameOrEmail] = useState<string | null>(null);

@@ -107,4 +107,17 @@ public final class Message {
 			type
 		);
 	}
+
+	@Override
+	public String toString() {
+		return "Message{" +
+			"messageId=" + messageId +
+			", sender=" + sender +
+			", receiver=" + receiver +
+			", timestamp=" + timestamp +
+			", type=" + type +
+			", data='" + data + '\'' +
+			", bonusData='" + bonusData + '\'' +
+			'}';
+	}
 }

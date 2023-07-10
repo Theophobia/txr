@@ -23,7 +23,11 @@ public final class MessageService {
 	}
 
 	public Page<Message> getMessagesBetweenUsers(User user1, User user2, Pageable pageable) {
-		return messageRepo.findAllBySenderAndReceiverOrSenderAndReceiverOrderByTimestampAsc(user1, user2, user2, user1, pageable);
+		Page<Message> a = messageRepo.findAllBySenderAndReceiverOrSenderAndReceiverOrderByTimestampAsc(user1, user2, user2, user1, pageable);
+//		System.out.println("a.toList() = " + a.toList());
+//		System.out.println("user1 = " + user1);
+//		System.out.println("user2 = " + user2);
+		return a;
 	}
 
 	public List<RecentChat> getRecentChats(Long userId) {

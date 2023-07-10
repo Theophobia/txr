@@ -112,4 +112,14 @@ public final class User {
 			c == '=' ||
 			c == '+';
 	}
+
+	@Override
+	public String toString() {
+		return "User{" +
+			"id=" + id +
+			", username='" + username + '\'' +
+			", email='" + email + '\'' +
+			", password='" + password + '\'' +
+			'}';
+	}
 }

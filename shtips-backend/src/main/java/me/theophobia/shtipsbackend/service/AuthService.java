@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class AuthService {
+public final class AuthService {
 
 	private final AuthTokenRepo authTokenRepo;
 	private final UserRepo userRepo;

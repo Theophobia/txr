@@ -66,8 +66,8 @@ public final class ChatController {
 		msg.setData(message);
 		msg.setType(MessageDataType.TEXT);
 
+		System.out.println("msg = " + msg);
 		messageService.saveMessage(msg);
-
 
 		return ResponseEntity.ok().build();
 	}
@@ -113,15 +113,6 @@ public final class ChatController {
 	private Tuple4<User /*Sender*/, User /*Receiver*/, AuthToken, ResponseEntity<?> /*Error?*/> resolve(long userId, String receiverUsername, String token) {
 		final Tuple4<User, User, AuthToken, ResponseEntity<?>> result = new Tuple4<>();
 
-		// Attempt to find receiver
-		Optional<User> optionalReceiver = userService.getUserByUsername(receiverUsername);
-		if (optionalReceiver.isEmpty()) {
-			result.setD(ResponseEntity.badRequest().body("Unknown receiver"));
-			return result;
-		}
-		User receiver = optionalReceiver.get();
-		result.setB(receiver);
-
 		// Attempt to find sender
 		Optional<User> optionalSender = userService.getUser(userId);
 		if (optionalSender.isEmpty()) {
@@ -130,6 +121,15 @@ public final class ChatController {
 		}
 		User sender = optionalSender.get();
 		result.setA(sender);
+
+		// Attempt to find receiver
+		Optional<User> optionalReceiver = userService.getUserByUsername(receiverUsername);
+		if (optionalReceiver.isEmpty()) {
+			result.setD(ResponseEntity.badRequest().body("Unknown receiver"));
+			return result;
+		}
+		User receiver = optionalReceiver.get();
+		result.setB(receiver);
 
 		if (authService.isInvalidToken(sender.getId(), token)) {
 			result.setD(ResponseEntity.status(401).body("Invalid auth token"));

@@ -20,10 +20,14 @@
 
 .msg_outer_box_me {
 	text-align: right;
+	display: flex;
+	justify-content: flex-end;
 }
 
 .msg_outer_box_other {
 	text-align: left;
+	display: flex;
+	padding-bottom: 10px;
 }
 
 .chat_header {
