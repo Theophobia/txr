@@ -1,0 +1,39 @@
+.register_root {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	min-width: 100%;
+	max-width: 100%;
+	min-height: 100%;
+	max-height: 100%;
+}
+
+.register_container {
+	justify-content: center;
+	align-items: center;
+
+	max-width: 300px;
+	padding: 10px;
+}
+
+.input {
+	margin-bottom: 10px;
+	margin-top: 10px;
+
+	min-width: 300px;
+	max-width: 300px;
+
+	border: none;
+	border-radius: 3px;
+
+	box-shadow: 0 2px 12px 0 #c0c0c0;
+}
+
+.flex_centered {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	width: 100%;
+}

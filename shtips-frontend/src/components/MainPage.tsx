@@ -19,14 +19,34 @@ const MainPage = () => {
 		dispatch(sidebarHidden());
 	};
 
+	const redirectToLoginPage = () => {
+		navigate("/login");
+	};
+
+	const redirectToRegisterPage = () => {
+		navigate("/register");
+	};
+
 	return (
 		<div>
-			{auth.isLoggedIn ?
+			{auth.isLoggedIn
+				?
 				<div>
 					<button onClick={() => dispatchLogout()}>Log out</button>
 				</div>
 				:
-				<div>Not logged in!</div>}
+				<>
+					<div>
+						Not logged in!
+					</div>
+					<button onClick={() => redirectToLoginPage()}>
+						Login
+					</button>
+					<button onClick={() => redirectToRegisterPage()}>
+						Register
+					</button>
+				</>
+			}
 		</div>
 	);
 };

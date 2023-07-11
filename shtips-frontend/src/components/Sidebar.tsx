@@ -6,7 +6,7 @@ import "./Sidebar.css"
 
 import RecentChat from "../api/recentChat";
 import {logout} from "../state/authActions";
-import {apiChatRecent} from "../query";
+import {apiAvatar, apiChatRecent} from "../query";
 
 const Sidebar = () => {
 	const [recentChats, setRecentChats] = useState<RecentChat[]>([]);
@@ -16,7 +16,7 @@ const Sidebar = () => {
 	const navigate = useNavigate();
 
 	const auth: AuthState = useSelector((state) => state.auth);
-	const isVisible: boolean = useSelector((state) => state.visibility.isSidebarVisible);
+	const show: boolean = useSelector((state) => state.visibility.isSidebarVisible);
 
 	useEffect(() => {
 		getRecentChats()
@@ -69,7 +69,7 @@ const Sidebar = () => {
 
 	return (
 		<>
-			{!auth.isLoggedIn || !isVisible ?
+			{!auth.isLoggedIn || !show ?
 				<>
 				</>
 				:
@@ -85,10 +85,13 @@ const Sidebar = () => {
 						<div className={"sidebar_chats"}>
 							{recentChats.map((chat) =>
 								<div key={chat.other_person_username}
-									 className={"sidebar_user"}
+									 className={"sidebar_chat_container"}
 									 onClick={() => navigate("/chat/".concat(chat.other_person_username))}
 								>
-									{chat.other_person_username}
+									<img className={"chat_avatar"} src={`http://localhost:8080/api/test/getAvatar?username=${chat.other_person_username}`}/>
+									<div className={"chat_username_container flex_centered"}>
+										{chat.other_person_username}
+									</div>
 								</div>
 							)}
 						</div>

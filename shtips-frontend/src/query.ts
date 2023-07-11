@@ -42,6 +42,20 @@ export async function apiUserLogin(usernameOrEmail: string, password: string): P
 	});
 }
 
+export async function apiUserRegister(email: string, username: string, password: string): Promise<Response | null> {
+	if (email.length === 0 || username.length === 0 || password.length === 0) {
+		return null;
+	}
+
+	return await fetch(`${API_URL}/api/user/register
+		?email=${encodeURIComponent(email)}
+		&username=${encodeURIComponent(username)}
+		&password=${encodeURIComponent(password)}
+		`, {
+		method: "POST"
+	});
+}
+
 export async function apiUserInfo(token: string): Promise<Response | null> {
 	if (token.length === 0) {
 		return null;
@@ -53,9 +67,9 @@ export async function apiUserInfo(token: string): Promise<Response | null> {
 	});
 }
 
-export async function apiAvatar(userId: number): Promise<Response | null> {
+export async function apiAvatar(username: number): Promise<Response | null> {
 	return await fetch(`${API_URL}/api/test/getAvatar
-		?userId=${encodeURIComponent(userId)}`, {
+		?username=${encodeURIComponent(username)}`, {
 		method: "GET"
 	});
 }

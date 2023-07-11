@@ -25,5 +25,5 @@ html, body {
 
 #root {
   height: 100vh;
-  width: calc(100vw - 15px);
+  width: 100vw;
 }

@@ -1,15 +1,16 @@
 import {useState} from "react";
 import { useNavigate } from "react-router-dom";
 import UserData from "../api/userData";
-import {loginSuccess} from "../state/authActions";
+import {loginSuccess, registerSuccess} from "../state/authActions";
 import {useDispatch, useSelector} from "react-redux";
 import {sidebarShown} from "../state/visibilityActions";
 import {AuthState} from "../state/authState";
-import {apiUserInfo, apiUserLogin} from "../query";
-import "./LoginPage.css";
+import {apiUserInfo, apiUserLogin, apiUserRegister} from "../query";
+import "./RegisterPage.css";
 
-function LoginPage() {
-	const [usernameOrEmail, setUsernameOrEmail] = useState<string | null>(null);
+function RegisterPage() {
+	const [email, setEmail] = useState<string | null>(null);
+	const [username, setUsername] = useState<string | null>(null);
 	const [password, setPassword] = useState<string | null>(null)
 
 	const dispatch = useDispatch();
@@ -17,7 +18,7 @@ function LoginPage() {
 
 	const auth: AuthState = useSelector((state) => state.auth);
 
-	const loginUser = async (usernameOrEmail, password, dispatch) => {
+	const registerUser = async (email, username, password, dispatch) => {
 		if (auth.isLoggedIn) {
 			console.log("Already logged in! Not sending login request. Should show error");
 			return;
@@ -25,15 +26,14 @@ function LoginPage() {
 
 		try {
 			// Send authentication request
-			const response = await apiUserLogin(usernameOrEmail, password);
+			const response = await apiUserRegister(email, username, password);
 
 			if (response === null) {
-				console.error("Login response is null!");
+				console.error("Register response is null!");
 				throw new Error();
 			}
-
 			if (!response.ok) {
-				console.error("Error logging in!");
+				console.error("Error registering!");
 				throw new Error();
 			}
 
@@ -47,7 +47,7 @@ function LoginPage() {
 				throw new Error();
 			}
 			if (!userDataResponse.ok) {
-				console.error("Error getting user data while logging in!");
+				console.error("Error getting user data while registering!");
 				throw new Error();
 			}
 
@@ -56,7 +56,7 @@ function LoginPage() {
 			console.log(user);
 
 			// Dispatch actions to update the store with authentication details and user data
-			dispatch(loginSuccess(user, token));
+			dispatch(registerSuccess(user, token));
 			dispatch(sidebarShown());
 
 			// Redirect to main page
@@ -64,16 +64,23 @@ function LoginPage() {
 		}
 		catch (error) {
 			// Handle authentication error
-			// dispatch(loginFailure(error.message));
+			// dispatch(registerFailure(error.message));
 		}
 	};
 
 	return (
-		<div className={"login_root"}>
-			<div className={"login_container"}>
+		<div className={"register_root"}>
+			<div className={"register_container"}>
 				<div className={"flex_centered"}>
-					<input placeholder={"Username/Email"}
-						   onChange={(event) => setUsernameOrEmail(event.target.value)}
+					<input placeholder={"Email"}
+						   onChange={(event) => setEmail(event.target.value)}
+						   className={"input"}
+					/>
+				</div>
+
+				<div className={"flex_centered"}>
+					<input placeholder={"Username"}
+						   onChange={(event) => setUsername(event.target.value)}
 						   className={"input"}
 					/>
 				</div>
@@ -81,17 +88,14 @@ function LoginPage() {
 				<div className={"flex_centered"}>
 					<input placeholder={"Password"}
 						   onChange={(event) => setPassword(event.target.value)}
-						   onKeyDownCapture={(event) => {
-							   if (event.key === "Enter") {
-								   loginUser(usernameOrEmail, password, dispatch);
-							   }
-						   }}
 						   className={"input"}
 					/>
 				</div>
 
 				<div className={"flex_centered"}>
-					<button onClick={() => loginUser(usernameOrEmail, password, dispatch)}>
+					<button onClick={() => {
+						registerUser(email, username, password, dispatch);
+					}}>
 						Submit
 					</button>
 				</div>
@@ -100,4 +104,4 @@ function LoginPage() {
 	);
 }
 
-export default LoginPage;
+export default RegisterPage;

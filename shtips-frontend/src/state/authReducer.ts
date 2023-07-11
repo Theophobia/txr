@@ -22,6 +22,13 @@ let authReducer: (state: AuthState, action) => (AuthState) = (state= initialStat
 				userData: null,
 				token: null,
 			};
+		case "REGISTER_SUCCESS":
+			return {
+				...state,
+				isLoggedIn: true,
+				userData: action.payload.userData,
+				token: action.payload.token,
+			};
 		// Additional cases for handling other actions
 		default:
 			return state;

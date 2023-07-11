@@ -12,16 +12,17 @@ const Chat = () => {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [message, setMessage] = useState("");
 	const [shouldRefetch, setShouldRefetch] = useState(false);
-	const [show, setShow] = useState(false);
+	const [showChatContainer, setShowChatContainer] = useState(false);
 	const messagesEndRef = useRef<HTMLDivElement | null>(null);
+	const [shouldRedirectToHomePage, setShouldRedirectToHomePage] = useState(false);
 
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 
 	const auth: AuthState = useSelector((state) => state.auth);
 
-	const fetchMessages = async () => {
-		setShow(false);
+	const fetchMessages = async (deleteMessages: boolean) => {
+		setShowChatContainer(false);
 
 		if (auth.userData === null) {
 			console.log("User data is null, returning");
@@ -53,7 +54,7 @@ const Chat = () => {
 			}
 
 			const data: Message[] = await response.json();
-			const messagesCopy = messages;
+			const messagesCopy = deleteMessages ? [] : messages;
 
 			data.forEach((m) => {
 				if (!messagesCopy.find((value) => value.timestamp === m.timestamp && value.senderUsername === m.senderUsername)) {
@@ -65,7 +66,7 @@ const Chat = () => {
 			});
 
 			setMessages(messagesCopy);
-			setShow(true);
+			setShowChatContainer(true);
 			// console.log(data);
 		}
 		catch (error) {
@@ -105,7 +106,7 @@ const Chat = () => {
 			navigate("/");
 			return;
 		}
-		fetchMessages().then(scrollToBottom);
+		fetchMessages(true).then(scrollToBottom);
 	}, [username]);
 
 	useEffect(() => {
@@ -115,34 +116,53 @@ const Chat = () => {
 		}
 		if (shouldRefetch) {
 			setShouldRefetch(false);
-			fetchMessages();
+			fetchMessages(false);
 		}
 	}, [shouldRefetch]);
 
+	useEffect(() => {
+		if (shouldRedirectToHomePage) {
+			setShouldRedirectToHomePage(false);
+			navigate("/");
+		}
+	}, [shouldRedirectToHomePage]);
+
 	return (
-		<>{!auth.isLoggedIn ? <></> :
+		<>{!auth.isLoggedIn
+			?
+			<>
+				<div>You are not logged in! You should return to the login page.</div>
+				{() => setShouldRedirectToHomePage(true)}
+			</>
+			:
 			<div className={"chat_root"}>
 				<div className={"chat_header"}>{username}</div>
-				<div className={"chat_container"}>
-					{show && messages.length !== 0 && messages.map((m) =>
-						<div key={m.timestamp.concat(m.senderUsername)}
-							 className={m.senderUsername === username ? "msg_outer_box_other" : "msg_outer_box_me"}
-						>
-							{m.senderUsername === username ? <img src={`http://localhost:8080/api/test/getAvatar?username=${username}`}></img> : <></>}
-							<div className={m.senderUsername === username ? "msg_any msg_other" : "msg_any msg_me"}>
-								{m.data}
+				{showChatContainer && <>
+					<div className={"chat_container"}>
+						{messages.length !== 0 && messages.map((m) =>
+							<div key={m.timestamp.concat(m.senderUsername)}
+								 className={m.senderUsername === username ? "msg_outer_box_other" : "msg_outer_box_me"}
+							>
+								{m.senderUsername === username ?
+									<img className={"msg_img_other"} src={`http://localhost:8080/api/test/getAvatar?username=${username}`}></img>
+									:
+									<img className={"msg_img_me"} src={`http://localhost:8080/api/test/getAvatar?username=${auth.userData?.username}`}></img>
+								}
+								<div className={m.senderUsername === username ? "msg_any msg_other" : "msg_any msg_me"}>
+									{m.data}
+								</div>
 							</div>
-							{m.senderUsername === username ? <></> : <img src={`http://localhost:8080/api/test/getAvatar?username=${auth.userData?.username}`}></img>}
-						</div>
-					)}
-					<div ref={messagesEndRef}></div>
-				</div>
-				<div className={"chat_input_box"}>
+						)}
+						<div ref={messagesEndRef}></div>
+					</div>
+					<div className={"chat_input_box"}>
 					<textarea className={"chat_input"}
-						   onKeyDown={(event) => sendMessage(event)}
-						   onChange={(event) => setMessage(event.target.value)}
+							  onKeyDown={(event) => sendMessage(event)}
+							  onChange={(event) => setMessage(event.target.value)}
+
 					/>
-				</div>
+					</div>
+				</>}
 			</div>
 		}</>
 	);

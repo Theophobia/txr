@@ -1,18 +1,23 @@
 .sidebar {
-	width: 15vw;
-	height: calc(100vh - 58px);
+	min-width: 120px;
+	max-width: 120px;
+	height: 100vh;
 
 	font-family: Arial, monospace;
+
+	box-shadow: 3px 0 10px 3px #d7d7d7;
 }
 
-.sidebar_user {
-	height: 3rem;
+.sidebar_chat_container {
+	height: 36px;
 
 	border: 2px dashed gray;
 	border-radius: 3px;
 
 	white-space: nowrap;
 	overflow: hidden;
+
+	display: flex;
 }
 
 .search_root {
@@ -29,4 +34,24 @@
 
 .sidebar_root {
 	border-right: 5px solid gray;
+}
+
+.chat_avatar {
+	max-width: 36px;
+	min-width: 36px;
+	max-height: 36px;
+	min-height: 36px;
+}
+
+.chat_username_container {
+	width: 100%;
+	height: 100%;
+}
+
+.flex_centered {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	width: 100%;
 }

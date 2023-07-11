@@ -4,32 +4,44 @@
 	padding: 3px;
 
 	display: inline-block;
+	max-width: 60%;
 
 	font-family: Arial, sans-serif;
+	overflow: auto;
+	word-wrap: break-word;
 }
 
 .msg_me {
-	border: 3px solid dodgerblue;
-	background-color: dodgerblue;
+	border: 3px solid #48a5ff;
+	background-color: #48a5ff;
+
+	box-shadow: -3px 3px 10px 1px #e1e1e1;
 }
 
 .msg_other {
-	border: 3px solid darkgray;
-	background-color: darkgray;
+	border: 3px solid #d7d7d7;
+	background-color: #d7d7d7;
+
+	box-shadow: 3px 3px 10px 1px #e1e1e1;
 }
 
 .msg_outer_box_me {
-	text-align: right;
-	display: flex;
-	justify-content: flex-end;
+	/*text-align: right;*/
+	/*display: flex;*/
+	/*justify-content: flex-end;*/
+
+	/*max-width: calc(85vw - 16px); !* Sidebar is 15vw, scroll bar is idk *!*/
 
 	padding-bottom: 10px;
-	padding-right: 5px;
+	padding-right: calc(5px + 12px);
+	direction: rtl;
 }
 
 .msg_outer_box_other {
 	text-align: left;
 	display: flex;
+
+	/*max-width: calc(85vw - 16px); !* Sidebar is 15vw, scroll bar is idk *!*/
 
 	padding-bottom: 10px;
 	padding-left: 5px;
@@ -40,15 +52,22 @@
 	text-align: center;
 
 	font-family: Arial, sans-serif;
+
+	box-shadow: 0 3px 10px -3px #d7d7d7;
 }
 
 .chat_root {
-	width: 100%;
+	min-width: calc(100vw - 120px /* Sidebar Width */);
+	max-width: calc(100vw - 120px /* Sidebar Width */);
 }
 
 .chat_container {
 	overflow: auto;
 	max-height: 90vh;
+	min-height: 90vh;
+
+	min-width: 100%;
+	max-width: 100%;
 }
 
 .chat_input_box {
@@ -62,6 +81,9 @@
 	height: calc(9vh - 30px);
 	width: calc(60vw);
 
+	font-family: Arial, sans-serif;
+	resize: none;
+
 	display: flex;
 	text-align: start;
 
@@ -69,5 +91,17 @@
 	border-radius: 8px;
 	text-indent: 4px;
 
+	box-shadow: 0 3px 10px 3px #c8c8c8;
+}
 
+.msg_img_other {
+	box-shadow: 0 3px 10px 1px #c8c8c8;
+	max-width: 36px;
+	max-height: 36px;
+}
+
+.msg_img_me {
+	box-shadow: 0 3px 10px 1px #c8c8c8;
+	max-width: 36px;
+	max-height: 36px;
 }
