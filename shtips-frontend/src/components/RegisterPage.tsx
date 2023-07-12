@@ -88,6 +88,11 @@ function RegisterPage() {
 				<div className={"flex_centered"}>
 					<input placeholder={"Password"}
 						   onChange={(event) => setPassword(event.target.value)}
+						   onKeyDownCapture={(event) => {
+							   if (event.key === "Enter") {
+								   registerUser(email, username, password, dispatch);
+							   }
+						   }}
 						   className={"input"}
 					/>
 				</div>

@@ -25,8 +25,11 @@ public final class Message {
 
 	private MessageDataType type;
 
-	private String data; // Base64 text message OR Base64 file
-	private String bonusData; // Present if type == FILE, this is file name, as base64
+	@Column(length = 4000)
+	private String data; // text message OR file
+
+	@Column(length = 250)
+	private String bonusData; // Present if type == FILE, this is file name
 
 	public Message() {
 	}

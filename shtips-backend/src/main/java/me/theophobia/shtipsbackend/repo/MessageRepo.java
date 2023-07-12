@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface MessageRepo extends JpaRepository<Message, Long> {
 //	Page<Message> findAllByOrderByTimestampDesc(Pageable pageable);
-	Page<Message> findAllBySenderAndReceiverOrSenderAndReceiverOrderByTimestampAsc(User sender1, User receiver1, User sender2, User receiver2, Pageable pageable);
+	Page<Message> findAllBySenderAndReceiverOrSenderAndReceiverOrderByTimestampDesc(User sender1, User receiver1, User sender2, User receiver2, Pageable pageable);
 
 //	List<Message> findDistinctBySender_IdOrReceiver_IdOrderBySender_IdAscReceiver_IdAscTimestampDesc(long id1, long id2);
 

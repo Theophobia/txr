@@ -16,6 +16,7 @@
 	background-color: #48a5ff;
 
 	box-shadow: -3px 3px 10px 1px #e1e1e1;
+	direction: ltr;
 }
 
 .msg_other {

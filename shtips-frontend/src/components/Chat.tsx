@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import {useEffect, useState, Suspense, useReducer, useRef} from "react";
+import React, {useEffect, useState, Suspense, useReducer, useRef} from "react";
 import Message from "../api/message";
 import "./Chat.css";
 import {logout} from "../state/authActions";
@@ -11,17 +11,22 @@ const Chat = () => {
 	const {username} = useParams();
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [message, setMessage] = useState("");
+
 	const [shouldRefetch, setShouldRefetch] = useState(false);
-	const [showChatContainer, setShowChatContainer] = useState(false);
-	const messagesEndRef = useRef<HTMLDivElement | null>(null);
 	const [shouldRedirectToHomePage, setShouldRedirectToHomePage] = useState(false);
+	const [shouldFetchOlderMessages, setShouldFetchOlderMessages] = useState(true);
+
+	const [showChatContainer, setShowChatContainer] = useState(true);
+
+	const [currPageIndex, setCurrPageIndex] = useState<number>(0);
 
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
+	const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
 	const auth: AuthState = useSelector((state) => state.auth);
 
-	const fetchMessages = async (deleteMessages: boolean) => {
+	const fetchMessages = async (pageNumber: number, deleteMessages: boolean, callbackData?: ((data: Message[]) => any), callback?: (() => Promise<any>)) => {
 		setShowChatContainer(false);
 
 		if (auth.userData === null) {
@@ -36,7 +41,7 @@ const Chat = () => {
 
 		try {
 			// Send authentication request
-			const response = await apiChatMessageGet(auth.userData.userId, auth.token, username, 0, 20);
+			const response = await apiChatMessageGet(auth.userData.userId, auth.token, username, pageNumber, 8);
 
 			if (response === null) {
 				throw new Error();
@@ -56,6 +61,10 @@ const Chat = () => {
 			const data: Message[] = await response.json();
 			const messagesCopy = deleteMessages ? [] : messages;
 
+			if (callbackData) {
+				await callbackData(data);
+			}
+
 			data.forEach((m) => {
 				if (!messagesCopy.find((value) => value.timestamp === m.timestamp && value.senderUsername === m.senderUsername)) {
 					messagesCopy.push(m);
@@ -68,6 +77,10 @@ const Chat = () => {
 			setMessages(messagesCopy);
 			setShowChatContainer(true);
 			// console.log(data);
+
+			if (callback) {
+				await callback();
+			}
 		}
 		catch (error) {
 			// Handle authentication error
@@ -96,19 +109,46 @@ const Chat = () => {
 		event.target.value = "";
 	}
 
-	const scrollToBottom = () => {
-		// noinspection TypeScriptValidateTypes
-		messagesEndRef.current?.scrollIntoView();
+	const timeout = (delay: number) => {
+		return new Promise(res => setTimeout(res, delay));
 	}
 
+	const scrollToBottom = async () => {
+		await timeout(50);
+		// noinspection TypeScriptValidateTypes
+		messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
+		console.log("Scrolling to bottom");
+	}
+
+	const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
+		const scrollTop = event.currentTarget.scrollTop;
+		// console.log(scrollTop);
+
+		if (scrollTop === 0 && shouldFetchOlderMessages) {
+			fetchMessages(currPageIndex + 1, false, data => {
+				if (data.length !== 0) {
+					setCurrPageIndex(currPageIndex + 1);
+				}
+				else {
+					setShouldFetchOlderMessages(false);
+				}
+			});
+			console.log(scrollTop);
+			console.log("a = " + event.currentTarget.scrollHeight);
+		}
+	};
+
+	// Initial
 	useEffect(() => {
 		if (!auth.isLoggedIn) {
 			navigate("/");
 			return;
 		}
-		fetchMessages(true).then(scrollToBottom);
+		setCurrPageIndex(0);
+		fetchMessages(0, true, scrollToBottom);
 	}, [username]);
 
+	// Fetching after sending a message
 	useEffect(() => {
 		if (!auth.isLoggedIn) {
 			navigate("/");
@@ -116,16 +156,26 @@ const Chat = () => {
 		}
 		if (shouldRefetch) {
 			setShouldRefetch(false);
-			fetchMessages(false);
+			fetchMessages(0, false, scrollToBottom);
 		}
 	}, [shouldRefetch]);
 
+	// Redirect useEffect
 	useEffect(() => {
 		if (shouldRedirectToHomePage) {
 			setShouldRedirectToHomePage(false);
 			navigate("/");
 		}
 	}, [shouldRedirectToHomePage]);
+
+	// Fetch when scrolling up
+	// useEffect(() => {
+	// 	if (!auth.isLoggedIn) {
+	// 		navigate("/");
+	// 		return;
+	// 	}
+	// 	fetchMessages(currPageIndex, false);
+	// }, [currPageIndex]);
 
 	return (
 		<>{!auth.isLoggedIn
@@ -135,10 +185,12 @@ const Chat = () => {
 				{() => setShouldRedirectToHomePage(true)}
 			</>
 			:
-			<div className={"chat_root"}>
+			<div className={"chat_root"}
+			>
 				<div className={"chat_header"}>{username}</div>
 				{showChatContainer && <>
-					<div className={"chat_container"}>
+					<div className={"chat_container"}
+						 onScroll={(event) => handleScroll(event)}>
 						{messages.length !== 0 && messages.map((m) =>
 							<div key={m.timestamp.concat(m.senderUsername)}
 								 className={m.senderUsername === username ? "msg_outer_box_other" : "msg_outer_box_me"}
