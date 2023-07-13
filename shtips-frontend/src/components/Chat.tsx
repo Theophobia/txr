@@ -186,7 +186,6 @@ const Chat = () => {
 			</>
 			:
 			<div className={"chat_root"}>
-				<RealtimeUpdate url={"/event-emitter"}/>
 				<div className={"chat_header"}>{username}</div>
 				{showChatContainer && <>
 					<div className={"chat_container"}
