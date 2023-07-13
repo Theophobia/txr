@@ -6,6 +6,7 @@ import {logout} from "../state/authActions";
 import {AuthState} from "../state/authState";
 import {useDispatch, useSelector} from "react-redux";
 import {apiChatMessageGet, apiChatMessageSend} from "../query";
+import RealtimeUpdate from "./RealtimeUpdate";
 
 const Chat = () => {
 	const {username} = useParams();
@@ -13,7 +14,6 @@ const Chat = () => {
 	const [message, setMessage] = useState("");
 
 	const [shouldRefetch, setShouldRefetch] = useState(false);
-	const [shouldRedirectToHomePage, setShouldRedirectToHomePage] = useState(false);
 	const [shouldFetchOlderMessages, setShouldFetchOlderMessages] = useState(true);
 
 	const [showChatContainer, setShowChatContainer] = useState(true);
@@ -114,7 +114,7 @@ const Chat = () => {
 	}
 
 	const scrollToBottom = async () => {
-		await timeout(50);
+		await timeout(300);
 		// noinspection TypeScriptValidateTypes
 		messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
 		console.log("Scrolling to bottom");
@@ -145,7 +145,8 @@ const Chat = () => {
 			return;
 		}
 		setCurrPageIndex(0);
-		fetchMessages(0, true, scrollToBottom);
+		setShouldFetchOlderMessages(true);
+		fetchMessages(0, true, () => {}, scrollToBottom);
 	}, [username]);
 
 	// Fetching after sending a message
@@ -156,17 +157,17 @@ const Chat = () => {
 		}
 		if (shouldRefetch) {
 			setShouldRefetch(false);
-			fetchMessages(0, false, scrollToBottom);
+			fetchMessages(0, false, () => {}, scrollToBottom);
 		}
 	}, [shouldRefetch]);
 
 	// Redirect useEffect
 	useEffect(() => {
-		if (shouldRedirectToHomePage) {
-			setShouldRedirectToHomePage(false);
+		if (!auth.isLoggedIn) {
 			navigate("/");
+			return;
 		}
-	}, [shouldRedirectToHomePage]);
+	});
 
 	// Fetch when scrolling up
 	// useEffect(() => {
@@ -182,15 +183,15 @@ const Chat = () => {
 			?
 			<>
 				<div>You are not logged in! You should return to the login page.</div>
-				{() => setShouldRedirectToHomePage(true)}
 			</>
 			:
-			<div className={"chat_root"}
-			>
+			<div className={"chat_root"}>
+				<RealtimeUpdate url={"/event-emitter"}/>
 				<div className={"chat_header"}>{username}</div>
 				{showChatContainer && <>
 					<div className={"chat_container"}
 						 onScroll={(event) => handleScroll(event)}>
+						<div className={"chat_fodder"}/>
 						{messages.length !== 0 && messages.map((m) =>
 							<div key={m.timestamp.concat(m.senderUsername)}
 								 className={m.senderUsername === username ? "msg_outer_box_other" : "msg_outer_box_me"}
@@ -208,11 +209,11 @@ const Chat = () => {
 						<div ref={messagesEndRef}></div>
 					</div>
 					<div className={"chat_input_box"}>
-					<textarea className={"chat_input"}
-							  onKeyDown={(event) => sendMessage(event)}
-							  onChange={(event) => setMessage(event.target.value)}
+						<textarea className={"chat_input"}
+								  onKeyDown={(event) => sendMessage(event)}
+								  onChange={(event) => setMessage(event.target.value)}
 
-					/>
+						/>
 					</div>
 				</>}
 			</div>

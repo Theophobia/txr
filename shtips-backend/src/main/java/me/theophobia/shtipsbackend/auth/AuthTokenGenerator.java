@@ -55,11 +55,11 @@ public final class AuthTokenGenerator {
 
 	public static boolean verify(long userId, long timeCreated, long timeExpires, AuthToken authToken) {
 		AuthToken other = generate(userId, timeCreated, timeExpires);
-		System.out.println("other = " + other);
-		System.out.println("authToken = " + authToken);
+//		System.out.println("other = " + other);
+//		System.out.println("authToken = " + authToken);
 
 		boolean res = other != null && other.equals(authToken);
-		System.out.println("res = " + res);
+//		System.out.println("res = " + res);
 		return res;
 	}
 }
