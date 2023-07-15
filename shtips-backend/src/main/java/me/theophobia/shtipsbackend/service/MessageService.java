@@ -35,7 +35,7 @@ public final class MessageService {
 			.map(m -> m.toRecentChat(userId)).collect(Collectors.toList());
 	}
 
-	public void saveMessage(Message message) {
-		messageRepo.save(message);
+	public Message save(Message message) {
+		return messageRepo.save(message);
 	}
 }

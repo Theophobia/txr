@@ -1,11 +1,15 @@
 package me.theophobia.shtipsbackend.controller;
 
+import me.theophobia.shtipsbackend.Update;
+import me.theophobia.shtipsbackend.UpdateType;
+import me.theophobia.shtipsbackend.WebSocketStore;
 import me.theophobia.shtipsbackend.chat.RecentChat;
 import me.theophobia.shtipsbackend.auth.AuthToken;
 import me.theophobia.shtipsbackend.chat.Message;
 import me.theophobia.shtipsbackend.chat.MessageDataType;
 import me.theophobia.shtipsbackend.service.AuthService;
 import me.theophobia.shtipsbackend.service.MessageService;
+import me.theophobia.shtipsbackend.service.UpdateService;
 import me.theophobia.shtipsbackend.service.UserService;
 import me.theophobia.shtipsbackend.user.User;
 import me.theophobia.shtipsbackend.util.Tuple4;
@@ -28,16 +32,19 @@ public final class ChatController {
 	private final MessageService messageService;
 	private final AuthService authService;
 	private final UserService userService;
+	private final UpdateService updateService;
 
 	@Autowired
 	public ChatController(
 		MessageService messageService,
 		AuthService authService,
-		UserService userService)
+		UserService userService,
+		UpdateService updateService)
 	{
 		this.messageService = messageService;
 		this.authService = authService;
 		this.userService = userService;
+		this.updateService = updateService;
 	}
 
 	@PostMapping(path = "/message/send")
@@ -67,7 +74,18 @@ public final class ChatController {
 		msg.setType(MessageDataType.TEXT);
 
 		System.out.println("msg = " + msg);
-		messageService.saveMessage(msg);
+		messageService.save(msg);
+
+		//
+		Update update = new Update();
+		update.setUser(msg.getReceiver());
+		update.setType(UpdateType.NEW_MESSAGE);
+		updateService.save(update);
+		//
+
+		WebSocketStore webSocketStore = WebSocketStore.getInstance();
+		System.out.println("UserSessionMap = " + webSocketStore.getUserSessionMap().toString());
+		webSocketStore.sendMessage(msg.getReceiver(), update.toPlain());
 
 		return ResponseEntity.ok().build();
 	}
