@@ -14,7 +14,6 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
 @ToString
 public final class User {
 	@Id
@@ -82,5 +81,22 @@ public final class User {
 			c == '_' ||
 			c == '=' ||
 			c == '+';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		User user = (User) o;
+		return getEmail().equals(user.getEmail());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getEmail());
 	}
 }

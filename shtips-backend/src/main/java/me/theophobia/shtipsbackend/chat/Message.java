@@ -1,7 +1,10 @@
 package me.theophobia.shtipsbackend.chat;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import me.theophobia.shtipsbackend.user.User;
 
 import java.time.LocalDateTime;
@@ -10,7 +13,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode
 @ToString
 public final class Message {
 
