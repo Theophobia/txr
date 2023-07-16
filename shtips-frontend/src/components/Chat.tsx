@@ -151,10 +151,13 @@ const Chat = () => {
 		setCurrPageIndex(0);
 		setShouldFetchOlderMessages(true);
 
-		setWs(<WebSocketComponent onNewMessage={(sender: string, receiver: string) => {
-			if (sender === username.trim()) {
-				setShouldRefetch(true);
-				console.log("Refetching, as sender === username, ", sender, username);
+		setWs(<WebSocketComponent onNewMessage={(msg: Message) => {
+			if (msg.senderUsername === username) {
+				console.log("Appending message, as sender === username, ", msg.senderUsername, username);
+				setMessages((prev) => [...prev, msg]);
+			}
+			else {
+				console.info("onNewMessage, but sender !== username")
 			}
 		}}/>);
 

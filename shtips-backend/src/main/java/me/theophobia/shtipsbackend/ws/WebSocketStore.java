@@ -3,7 +3,6 @@ package me.theophobia.shtipsbackend.ws;
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.Session;
 import me.theophobia.shtipsbackend.service.AuthService;
-import me.theophobia.shtipsbackend.service.UpdateService;
 import me.theophobia.shtipsbackend.service.UserService;
 import me.theophobia.shtipsbackend.user.User;
 import org.slf4j.Logger;
@@ -26,7 +25,6 @@ public class WebSocketStore {
 
 	private final UserService userService;
 	private final AuthService authService;
-	private final UpdateService updateService;
 
 	private static WebSocketStore instance = null;
 	public static WebSocketStore getInstance() {
@@ -36,12 +34,10 @@ public class WebSocketStore {
 	@Autowired
 	public WebSocketStore(
 		UserService userService,
-		AuthService authService,
-		UpdateService updateService
+		AuthService authService
 	) {
 		this.userService = userService;
 		this.authService = authService;
-		this.updateService = updateService;
 
 		// TODO: probably a based hack, we ball
 		if (instance == null) {

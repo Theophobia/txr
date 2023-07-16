@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import {AuthState} from "../state/authState";
 import {useSelector} from "react-redux";
 import {Update, UpdateType} from "../updateType";
+import Message from "../api/message";
 
-const WebSocketComponent: React.FC = (props: {onNewMessage: (sender: string, receiver: string) => {}}) => {
+const WebSocketComponent: React.FC = (props: {onNewMessage: (msg: Message) => {}}) => {
 	const [socket, setSocket] = useState<WebSocket | null>(null);
 
 	const auth: AuthState = useSelector((state) => state.auth);
@@ -37,41 +38,34 @@ const WebSocketComponent: React.FC = (props: {onNewMessage: (sender: string, rec
 			socket.onmessage = (event) => {
 				try {
 					// Handle the received data as needed
-					const receivedData: string = event.data;
-					console.log("Received data: ", receivedData);
+					const eventData: string = event.data;
+					console.info("Received data:", eventData);
 
-					const json = JSON.parse(receivedData);
-					console.log("Json: ", json);
+					const idString = eventData.substring(0, 4);
+					console.info("Found idString:", idString);
 
-					if (!("type" in json)) {
-						console.error("Received message does not have field 'type'");
-						return;
-					}
+					const id = parseInt(idString);
+					console.info("Found id:", id);
 
-					switch (json.type) {
-						case "NEW_MESSAGE": {
-							if (!("sender" in json)) {
-								console.error("Incorrect message, does not have 'sender' field");
-								return;
-							}
+					const data = eventData.substring(4);
+					console.info("Found data:", data);
 
-							if (!("receiver" in json)) {
-								console.error("Incorrect message, does not have 'receiver' field");
-								return;
-							}
+					switch (id) {
+						case 1: {
+							const msg: Message = JSON.parse(data);
+							console.info("Parsed message:", msg);
 
-							console.log("Firing onNewMessage()");
-							props.onNewMessage(json.sender, json.receiver);
+							props.onNewMessage(msg);
 							break;
 						}
 						default: {
-							console.log("Default");
+							console.error("Could not match ID, do we have different API versions?");
 							break;
 						}
 					}
 				}
 				catch (e) {
-					console.error("Error parsing received message: ", e);
+					console.error("Error parsing received message:", e);
 				}
 			};
 

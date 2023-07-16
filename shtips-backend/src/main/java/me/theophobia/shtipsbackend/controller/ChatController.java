@@ -1,6 +1,5 @@
 package me.theophobia.shtipsbackend.controller;
 
-import me.theophobia.shtipsbackend.update.NewMessageUpdate;
 import me.theophobia.shtipsbackend.ws.WebSocketStore;
 import me.theophobia.shtipsbackend.chat.RecentChat;
 import me.theophobia.shtipsbackend.auth.AuthToken;
@@ -8,7 +7,6 @@ import me.theophobia.shtipsbackend.chat.Message;
 import me.theophobia.shtipsbackend.chat.MessageDataType;
 import me.theophobia.shtipsbackend.service.AuthService;
 import me.theophobia.shtipsbackend.service.MessageService;
-import me.theophobia.shtipsbackend.service.UpdateService;
 import me.theophobia.shtipsbackend.service.UserService;
 import me.theophobia.shtipsbackend.user.User;
 import me.theophobia.shtipsbackend.util.Tuple4;
@@ -31,19 +29,16 @@ public final class ChatController {
 	private final MessageService messageService;
 	private final AuthService authService;
 	private final UserService userService;
-	private final UpdateService updateService;
 
 	@Autowired
 	public ChatController(
 		MessageService messageService,
 		AuthService authService,
-		UserService userService,
-		UpdateService updateService)
+		UserService userService)
 	{
 		this.messageService = messageService;
 		this.authService = authService;
 		this.userService = userService;
-		this.updateService = updateService;
 	}
 
 	@PostMapping(path = "/message/send")
@@ -75,16 +70,9 @@ public final class ChatController {
 		System.out.println("msg = " + msg);
 		messageService.save(msg);
 
-		//
-		NewMessageUpdate newMessageUpdate = new NewMessageUpdate();
-		newMessageUpdate.setReceiver(msg.getReceiver());
-		newMessageUpdate.setSender(msg.getSender());
-		updateService.save(newMessageUpdate);
-		//
-
 		WebSocketStore webSocketStore = WebSocketStore.getInstance();
 		System.out.println("UserSessionMap = " + webSocketStore.getUserSessionMap().toString());
-		webSocketStore.sendMessage(msg.getReceiver(), newMessageUpdate.toPlain());
+		webSocketStore.sendMessage(msg.getReceiver(), "0001" + msg.toAnonymousMessage().json());
 
 		return ResponseEntity.ok().build();
 	}

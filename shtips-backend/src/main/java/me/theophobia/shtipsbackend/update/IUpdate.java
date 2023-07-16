@@ -4,4 +4,5 @@ public interface IUpdate {
 	IPlain toPlain();
 
 	UpdateType getType();
+	IJson getPayload();
 }
