@@ -2,7 +2,6 @@ package me.theophobia.shtipsbackend.ws;
 
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
-import me.theophobia.shtipsbackend.WebSocketStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

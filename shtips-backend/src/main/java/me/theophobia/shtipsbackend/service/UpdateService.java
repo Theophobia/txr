@@ -1,6 +1,6 @@
 package me.theophobia.shtipsbackend.service;
 
-import me.theophobia.shtipsbackend.Update;
+import me.theophobia.shtipsbackend.update.NewMessageUpdate;
 import me.theophobia.shtipsbackend.repo.UpdateRepo;
 import org.springframework.stereotype.Service;
 
@@ -19,15 +19,15 @@ public class UpdateService {
 		this.updateRepo = updateRepo;
 	}
 
-	public List<Update> getUpdates(Long userId) {
-		return userService.getUser(userId).map(updateRepo::findAllByUser).orElse(List.of());
+	public List<NewMessageUpdate> getNewMessageUpdates(Long userId) {
+		return userService.getUser(userId).map(updateRepo::findAllByReceiver).orElse(List.of());
 	}
 
-	public Update save(Update update) {
-		return updateRepo.save(update);
+	public NewMessageUpdate save(NewMessageUpdate newMessageUpdate) {
+		return updateRepo.save(newMessageUpdate);
 	}
 
-	public void deleteAll(Iterable<? extends Update> entities) {
+	public void deleteAll(Iterable<? extends NewMessageUpdate> entities) {
 		updateRepo.deleteAll(entities);
 	}
 }

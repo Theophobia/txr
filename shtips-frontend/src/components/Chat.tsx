@@ -6,7 +6,7 @@ import {logout} from "../state/authActions";
 import {AuthState} from "../state/authState";
 import {useDispatch, useSelector} from "react-redux";
 import {apiChatMessageGet, apiChatMessageSend} from "../query";
-import WebSocketComponent from "../WebSocketComponent";
+import WebSocketComponent from "./WebSocketComponent";
 
 const Chat = () => {
 	const {username} = useParams();
@@ -15,6 +15,8 @@ const Chat = () => {
 
 	const [shouldRefetch, setShouldRefetch] = useState(false);
 	const [shouldFetchOlderMessages, setShouldFetchOlderMessages] = useState(true);
+
+	const [ws, setWs] = useState(<></>);
 
 	const [showChatContainer, setShowChatContainer] = useState(true);
 
@@ -144,8 +146,18 @@ const Chat = () => {
 			navigate("/");
 			return;
 		}
+		console.log("Username changed to \'", username, '\'');
+
 		setCurrPageIndex(0);
 		setShouldFetchOlderMessages(true);
+
+		setWs(<WebSocketComponent onNewMessage={(sender: string, receiver: string) => {
+			if (sender === username.trim()) {
+				setShouldRefetch(true);
+				console.log("Refetching, as sender === username, ", sender, username);
+			}
+		}}/>);
+
 		fetchMessages(0, true, {callbackFinish: scrollToBottom});
 	}, [username]);
 
@@ -186,7 +198,7 @@ const Chat = () => {
 			</>
 			:
 			<>
-				<WebSocketComponent onNewMessage={() => setShouldRefetch(true)}/>
+				{ws}
 				<div className={"chat_root"}>
 					<div className={"chat_header"}>{username}</div>
 					{showChatContainer && <>

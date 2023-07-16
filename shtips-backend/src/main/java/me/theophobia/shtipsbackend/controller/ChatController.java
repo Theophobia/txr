@@ -1,8 +1,7 @@
 package me.theophobia.shtipsbackend.controller;
 
-import me.theophobia.shtipsbackend.Update;
-import me.theophobia.shtipsbackend.UpdateType;
-import me.theophobia.shtipsbackend.WebSocketStore;
+import me.theophobia.shtipsbackend.update.NewMessageUpdate;
+import me.theophobia.shtipsbackend.ws.WebSocketStore;
 import me.theophobia.shtipsbackend.chat.RecentChat;
 import me.theophobia.shtipsbackend.auth.AuthToken;
 import me.theophobia.shtipsbackend.chat.Message;
@@ -77,15 +76,15 @@ public final class ChatController {
 		messageService.save(msg);
 
 		//
-		Update update = new Update();
-		update.setUser(msg.getReceiver());
-		update.setType(UpdateType.NEW_MESSAGE);
-		updateService.save(update);
+		NewMessageUpdate newMessageUpdate = new NewMessageUpdate();
+		newMessageUpdate.setReceiver(msg.getReceiver());
+		newMessageUpdate.setSender(msg.getSender());
+		updateService.save(newMessageUpdate);
 		//
 
 		WebSocketStore webSocketStore = WebSocketStore.getInstance();
 		System.out.println("UserSessionMap = " + webSocketStore.getUserSessionMap().toString());
-		webSocketStore.sendMessage(msg.getReceiver(), update.toPlain());
+		webSocketStore.sendMessage(msg.getReceiver(), newMessageUpdate.toPlain());
 
 		return ResponseEntity.ok().build();
 	}

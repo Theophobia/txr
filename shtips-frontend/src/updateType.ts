@@ -1,5 +1,5 @@
 export enum UpdateType {
-	NEW_MESSAGE
+	"NEW_MESSAGE"
 }
 
 export class Update {

@@ -1,4 +1,4 @@
-package me.theophobia.shtipsbackend;
+package me.theophobia.shtipsbackend.ws;
 
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.Session;

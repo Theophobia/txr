@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {AuthState} from "./state/authState";
+import {AuthState} from "../state/authState";
 import {useSelector} from "react-redux";
-import {Update, UpdateType} from "./updateType";
+import {Update, UpdateType} from "../updateType";
 
-const WebSocketComponent: React.FC = (props: {onNewMessage: () => {any}}) => {
+const WebSocketComponent: React.FC = (props: {onNewMessage: (sender: string, receiver: string) => {}}) => {
 	const [socket, setSocket] = useState<WebSocket | null>(null);
 
 	const auth: AuthState = useSelector((state) => state.auth);
@@ -17,7 +17,7 @@ const WebSocketComponent: React.FC = (props: {onNewMessage: () => {any}}) => {
 		return () => {
 			newSocket.close();
 		};
-	}, []);
+	}, [props /* TODO: new connection on every chat change*/]);
 
 	useEffect(() => {
 		if (socket) {
@@ -35,19 +35,43 @@ const WebSocketComponent: React.FC = (props: {onNewMessage: () => {any}}) => {
 
 			// Event handler for receiving messages from the server
 			socket.onmessage = (event) => {
-				const receivedData: string = event.data;
-				// Handle the received data as needed
-				console.log("Received data: ", receivedData);
+				try {
+					// Handle the received data as needed
+					const receivedData: string = event.data;
+					console.log("Received data: ", receivedData);
 
-				switch (receivedData) {
-					case "NEW_MESSAGE":
-						console.log("Firing onNewMessage()");
-						props.onNewMessage();
-						break;
+					const json = JSON.parse(receivedData);
+					console.log("Json: ", json);
 
-					default:
-						console.log("Default");
-						break;
+					if (!("type" in json)) {
+						console.error("Received message does not have field 'type'");
+						return;
+					}
+
+					switch (json.type) {
+						case "NEW_MESSAGE": {
+							if (!("sender" in json)) {
+								console.error("Incorrect message, does not have 'sender' field");
+								return;
+							}
+
+							if (!("receiver" in json)) {
+								console.error("Incorrect message, does not have 'receiver' field");
+								return;
+							}
+
+							console.log("Firing onNewMessage()");
+							props.onNewMessage(json.sender, json.receiver);
+							break;
+						}
+						default: {
+							console.log("Default");
+							break;
+						}
+					}
+				}
+				catch (e) {
+					console.error("Error parsing received message: ", e);
 				}
 			};
 
