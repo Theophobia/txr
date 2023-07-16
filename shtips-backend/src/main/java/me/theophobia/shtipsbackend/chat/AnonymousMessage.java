@@ -1,6 +1,6 @@
 package me.theophobia.shtipsbackend.chat;
 
-import me.theophobia.shtipsbackend.update.IJson;
+import me.theophobia.shtipsbackend.IJson;
 
 import java.time.LocalDateTime;
 

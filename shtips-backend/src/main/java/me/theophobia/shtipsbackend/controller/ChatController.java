@@ -55,13 +55,13 @@ public final class ChatController {
 		var t = resolve(userId, receiver, token);
 
 		// Check if error occurred
-		if (t.d() != null) {
-			return t.d();
+		if (t.getD() != null) {
+			return t.getD();
 		}
 
 		Message msg = new Message();
-		msg.setSender(t.a());
-		msg.setReceiver(t.b());
+		msg.setSender(t.getA());
+		msg.setReceiver(t.getB());
 		msg.setTimestamp(OffsetDateTime.now(ZoneOffset.UTC).toLocalDateTime());
 
 		msg.setData(message);
@@ -90,13 +90,13 @@ public final class ChatController {
 		var t = resolve(userId, receiver, token);
 
 		// Check if error occurred
-		if (t.d() != null) {
-			return t.d();
+		if (t.getD() != null) {
+			return t.getD();
 		}
 
 		Pageable pageable = PageRequest.of(pageNumber, pageSize /*, Sort.by("timestamp").descending()*/);
 
-		return ResponseEntity.ok(messageService.getMessagesBetweenUsers(t.a(), t.b(), pageable).map(Message::toAnonymousMessage).toList());
+		return ResponseEntity.ok(messageService.getMessagesBetweenUsers(t.getA(), t.getB(), pageable).map(Message::toAnonymousMessage).toList());
 	}
 
 	@GetMapping(path = "/recent")

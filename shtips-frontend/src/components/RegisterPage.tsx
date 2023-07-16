@@ -5,7 +5,7 @@ import {loginSuccess, registerSuccess} from "../state/authActions";
 import {useDispatch, useSelector} from "react-redux";
 import {sidebarShown} from "../state/visibilityActions";
 import {AuthState} from "../state/authState";
-import {apiUserInfo, apiUserLogin, apiUserRegister} from "../query";
+import {apiUserInfo, apiUserLogin, apiUserRegister} from "../util/query";
 import "./RegisterPage.css";
 
 function RegisterPage() {

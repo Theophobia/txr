@@ -1,6 +1,6 @@
 import { combineReducers } from "redux";
-import authReducer from "./state/authReducer";
-import visibilityReducer from "./state/visibilityReducer";
+import authReducer from "./authReducer";
+import visibilityReducer from "./visibilityReducer";
 
 const rootReducer = combineReducers({
 	auth: authReducer,

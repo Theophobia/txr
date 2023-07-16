@@ -22,7 +22,7 @@ public class WebSocketController {
 	@OnMessage
 	public void onMessage(String message, Session session) throws IOException {
 		// Handle new messages
-		LOGGER.info("Handle new messages -> {}", message);
+		LOGGER.info("WebSocket message -> {}", message);
 
 		if (!message.startsWith("token=")) {
 			return;
@@ -33,7 +33,7 @@ public class WebSocketController {
 //		System.out.println("webSocketStore = " + webSocketStore);
 
 		if (webSocketStore.addSession(token, session).isPresent()) {
-			LOGGER.info("Added token session {}", token);
+			LOGGER.info("Added session {}", token);
 		}
 	}
 

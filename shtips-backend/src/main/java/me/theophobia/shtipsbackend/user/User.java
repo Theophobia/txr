@@ -1,6 +1,7 @@
 package me.theophobia.shtipsbackend.user;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.Objects;
 
@@ -9,6 +10,12 @@ import java.util.Objects;
 	@UniqueConstraint(columnNames = "username"),
 	@UniqueConstraint(columnNames = "email")
 })
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
 public final class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,47 +29,9 @@ public final class User {
 
 	private String password;
 
-	public User() {
-	}
-
 	public User(String email, String username, String password) {
 		this.email = email;
 		this.username = username;
-		this.password = password;
-	}
-
-	public User(Long id, String email, String username, String password) {
-		this.id = id;
-		this.email = email;
-		this.username = username;
-		this.password = password;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public void setPassword(String password) {
 		this.password = password;
 	}
 
@@ -113,32 +82,5 @@ public final class User {
 			c == '_' ||
 			c == '=' ||
 			c == '+';
-	}
-
-	@Override
-	public String toString() {
-		return "User{" +
-			"id=" + id +
-			", username='" + username + '\'' +
-			", email='" + email + '\'' +
-			", password='" + password + '\'' +
-			'}';
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		User user = (User) o;
-		return getEmail().equals(user.getEmail());
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(getEmail());
 	}
 }

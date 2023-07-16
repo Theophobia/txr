@@ -6,7 +6,7 @@ import "./Sidebar.css"
 
 import RecentChat from "../api/recentChat";
 import {logout} from "../state/authActions";
-import {apiAvatar, apiChatRecent} from "../query";
+import {apiAvatar, apiChatRecent} from "../util/query";
 
 const Sidebar = () => {
 	const [recentChats, setRecentChats] = useState<RecentChat[]>([]);

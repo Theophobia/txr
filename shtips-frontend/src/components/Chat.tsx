@@ -5,7 +5,7 @@ import "./Chat.css";
 import {logout} from "../state/authActions";
 import {AuthState} from "../state/authState";
 import {useDispatch, useSelector} from "react-redux";
-import {apiChatMessageGet, apiChatMessageSend} from "../query";
+import {apiChatMessageGet, apiChatMessageSend} from "../util/query";
 import WebSocketComponent from "./WebSocketComponent";
 
 const Chat = () => {
