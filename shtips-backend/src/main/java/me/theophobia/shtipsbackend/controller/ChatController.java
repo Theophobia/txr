@@ -72,7 +72,7 @@ public final class ChatController {
 
 		WebSocketStore webSocketStore = WebSocketStore.getInstance();
 		System.out.println("UserSessionMap = " + webSocketStore.getUserSessionMap().toString());
-		webSocketStore.sendMessage(msg.getReceiver(), "0001" + msg.toAnonymousMessage().json());
+		webSocketStore.sendMessage(msg.getReceiver(), "0001" + msg.toAnonymousSenderMessage().json());
 
 		return ResponseEntity.ok().build();
 	}
@@ -96,7 +96,7 @@ public final class ChatController {
 
 		Pageable pageable = PageRequest.of(pageNumber, pageSize /*, Sort.by("timestamp").descending()*/);
 
-		return ResponseEntity.ok(messageService.getMessagesBetweenUsers(t.getA(), t.getB(), pageable).map(Message::toAnonymousMessage).toList());
+		return ResponseEntity.ok(messageService.getMessagesBetweenUsers(t.getA(), t.getB(), pageable).map(Message::toAnonymousSenderMessage).toList());
 	}
 
 	@GetMapping(path = "/recent")

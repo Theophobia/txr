@@ -1,10 +1,8 @@
 package me.theophobia.shtipsbackend.chat;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import me.theophobia.shtipsbackend.IJson;
 import me.theophobia.shtipsbackend.user.User;
 
 import java.time.LocalDateTime;
@@ -13,7 +11,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
+@Builder
 public final class Message {
 
 	@Id
@@ -39,9 +39,19 @@ public final class Message {
 	@Column(length = 250)
 	private String bonusData; // Present if type == FILE, this is file name
 
-	public AnonymousMessage toAnonymousMessage() {
-		return new AnonymousMessage(
+	public AnonymousSenderMessage toAnonymousSenderMessage() {
+		return new AnonymousSenderMessage(
 			sender.getUsername(),
+			timestamp,
+			type,
+			data,
+			bonusData
+		);
+	}
+
+	public AnonymousReceiverMessage toAnonymousReceiverMessage() {
+		return new AnonymousReceiverMessage(
+			receiver.getUsername(),
 			timestamp,
 			type,
 			data,

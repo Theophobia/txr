@@ -6,7 +6,8 @@ import {logout} from "../state/authActions";
 import {AuthState} from "../state/authState";
 import {useDispatch, useSelector} from "react-redux";
 import {apiChatMessageGet, apiChatMessageSend} from "../util/query";
-import WebSocketComponent from "./WebSocketComponent";
+import useWebSocket from "./UseWebSocket";
+import {Event11, Event12} from "../api/event";
 
 const Chat = () => {
 	const {username} = useParams();
@@ -16,7 +17,20 @@ const Chat = () => {
 	const [shouldRefetch, setShouldRefetch] = useState(false);
 	const [shouldFetchOlderMessages, setShouldFetchOlderMessages] = useState(true);
 
-	const [ws, setWs] = useState(<></>);
+	const [send] = useWebSocket({
+		onNewMessage: (msg: Message) => {
+			if (msg.sender === username) {
+				console.log("Appending message, as sender === username, ", msg.sender, username);
+				setMessages((prev) => [...prev, msg]);
+			}
+			else {
+				console.info("onNewMessage, but sender !== username")
+			}
+		},
+		onMessageConfirm: (event12: Event12) => {
+			console.log("Event12", event12);
+		}
+	});
 
 	const [showChatContainer, setShowChatContainer] = useState(true);
 
@@ -68,12 +82,12 @@ const Chat = () => {
 			}
 
 			data.forEach((m) => {
-				if (!messagesCopy.find((value) => value.timestamp === m.timestamp && value.senderUsername === m.senderUsername)) {
+				if (!messagesCopy.find((value) => value.timestamp === m.timestamp && value.sender === m.sender)) {
 					messagesCopy.push(m);
 				}
 			});
 			messagesCopy.sort((a, b) => {
-				return a.timestamp.concat(a.senderUsername).localeCompare(b.timestamp.concat(b.senderUsername))
+				return a.timestamp.concat(a.sender).localeCompare(b.timestamp.concat(b.sender))
 			});
 
 			setMessages(messagesCopy);
@@ -95,7 +109,11 @@ const Chat = () => {
 			return;
 		}
 
-		if (message.length === 0) {
+		const filteredMessage = message
+			.replace(/[\u0000-\u001F\u007F-\u009F]/g, "")
+			.trim();
+
+		if (filteredMessage.length === 0) {
 			return;
 		}
 
@@ -103,10 +121,40 @@ const Chat = () => {
 			console.log("Might be an error, and might need to log out.");
 			return;
 		}
+		const now = new Date();
 
-		const response = await apiChatMessageSend(auth.userData.userId, auth.token, username, message);
-		setShouldRefetch(true);
+		const year = now.getFullYear();
+		const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
+		const day = now.getDate().toString().padStart(2, '0');
+		const hours = now.getHours().toString().padStart(2, '0');
+		const minutes = now.getMinutes().toString().padStart(2, '0');
+		const seconds = now.getSeconds().toString().padStart(2, '0');
+		const milliseconds = now.getMilliseconds().toString().padStart(3, '0');
 
+		const currentDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+
+		const event11: Event11 = {
+			userId: auth.userData.userId,
+			token: auth.token,
+			receiver: username,
+			timestamp: currentDateTime,
+			type: "TEXT",
+			data: filteredMessage,
+			bonusData: null,
+		};
+		console.log("event11 = ", event11);
+
+		send("0011" + JSON.stringify(event11));
+
+		const msg: Message = {
+			sender: auth.userData.username,
+			timestamp: event11.timestamp,
+			type: event11.type,
+			data: event11.data,
+			bonusData: event11.bonusData,
+		}
+
+		setMessages(prevState => [...prevState, msg]);
 		setMessage("");
 		event.target.value = "";
 	}
@@ -149,17 +197,6 @@ const Chat = () => {
 		console.log("Username changed to \'", username, '\'');
 
 		setCurrPageIndex(0);
-		setShouldFetchOlderMessages(true);
-
-		setWs(<WebSocketComponent onNewMessage={(msg: Message) => {
-			if (msg.senderUsername === username) {
-				console.log("Appending message, as sender === username, ", msg.senderUsername, username);
-				setMessages((prev) => [...prev, msg]);
-			}
-			else {
-				console.info("onNewMessage, but sender !== username")
-			}
-		}}/>);
 
 		fetchMessages(0, true, {callbackFinish: scrollToBottom});
 	}, [username]);
@@ -201,7 +238,6 @@ const Chat = () => {
 			</>
 			:
 			<>
-				{ws}
 				<div className={"chat_root"}>
 					<div className={"chat_header"}>{username}</div>
 					{showChatContainer && <>
@@ -209,15 +245,15 @@ const Chat = () => {
 							 onScroll={(event) => handleScroll(event)}>
 							<div className={"chat_fodder"}/>
 							{messages.length !== 0 && messages.map((m) =>
-								<div key={m.timestamp.concat(m.senderUsername)}
-									 className={m.senderUsername === username ? "msg_outer_box_other" : "msg_outer_box_me"}
+								<div key={m.timestamp.concat(m.sender)}
+									 className={m.sender === username ? "msg_outer_box_other" : "msg_outer_box_me"}
 								>
-									{m.senderUsername === username ?
+									{m.sender === username ?
 										<img className={"msg_img_other"} src={`http://localhost:8080/api/test/getAvatar?username=${username}`}></img>
 										:
 										<img className={"msg_img_me"} src={`http://localhost:8080/api/test/getAvatar?username=${auth.userData?.username}`}></img>
 									}
-									<div className={m.senderUsername === username ? "msg_any msg_other" : "msg_any msg_me"}>
+									<div className={m.sender === username ? "msg_any msg_other" : "msg_any msg_me"}>
 										{m.data}
 									</div>
 								</div>

@@ -16,10 +16,20 @@ public final class AuthService {
 	private final AuthTokenRepo authTokenRepo;
 	private final UserRepo userRepo;
 
+	private static AuthService instance = null;
+	public static AuthService getInstance() {
+		return instance;
+	}
+
 	@Autowired
 	public AuthService(AuthTokenRepo authTokenRepo, UserRepo userRepo) {
 		this.authTokenRepo = authTokenRepo;
 		this.userRepo = userRepo;
+
+		// TODO: probably a based hack, we ball
+		if (instance == null) {
+			instance = this;
+		}
 	}
 
 	public Optional<AuthToken> loginUser(String usernameOrEmail, String password) {

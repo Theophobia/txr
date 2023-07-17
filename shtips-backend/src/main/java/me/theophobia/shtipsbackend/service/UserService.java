@@ -1,9 +1,11 @@
 package me.theophobia.shtipsbackend.service;
 
+import jakarta.persistence.UniqueConstraint;
 import me.theophobia.shtipsbackend.repo.UserAvatarRepo;
 import me.theophobia.shtipsbackend.repo.UserRepo;
 import me.theophobia.shtipsbackend.user.User;
 import me.theophobia.shtipsbackend.user.UserAvatar;
+import me.theophobia.shtipsbackend.ws.WebSocketStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +17,20 @@ public final class UserService {
 	private final UserRepo userRepo;
 	private final UserAvatarRepo userAvatarRepo;
 
+	private static UserService instance = null;
+	public static UserService getInstance() {
+		return instance;
+	}
+
 	@Autowired
 	public UserService(UserRepo userRepo, UserAvatarRepo userAvatarRepo) {
 		this.userRepo = userRepo;
 		this.userAvatarRepo = userAvatarRepo;
+
+		// TODO: probably a based hack, we ball
+		if (instance == null) {
+			instance = this;
+		}
 	}
 
 	public Optional<User> registerUser(String email, String username, String password) {

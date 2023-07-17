@@ -17,9 +17,19 @@ public final class MessageService {
 
 	private final MessageRepo messageRepo;
 
+	private static MessageService instance = null;
+	public static MessageService getInstance() {
+		return instance;
+	}
+
 	@Autowired
 	public MessageService(MessageRepo messageRepo) {
 		this.messageRepo = messageRepo;
+
+		// TODO: probably a based hack, we ball
+		if (instance == null) {
+			instance = this;
+		}
 	}
 
 	public Page<Message> getMessagesBetweenUsers(User user1, User user2, Pageable pageable) {
