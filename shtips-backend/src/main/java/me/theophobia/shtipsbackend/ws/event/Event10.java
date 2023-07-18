@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @ToString
 @Builder
 public class Event10 implements IJson {
+	private long messageId;
 	private String sender;
 	private LocalDateTime timestamp;
 	private MessageDataType type;
@@ -23,7 +24,8 @@ public class Event10 implements IJson {
 
 	@Override
 	public String json() {
-		return "{\"sender\": \"" + sender + "\"" +
+		return "{\"messageId\": " + messageId +
+			", \"sender\": \"" + sender + "\"" +
 			", \"timestamp\": \"" + Format.DATE_TIME_FORMATTER.format(timestamp) + "\"" +
 			", \"type\": \"" + type + "\"" +
 			", \"data\": \"" + data + "\"" +

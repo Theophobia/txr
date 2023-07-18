@@ -1,6 +1,6 @@
 version: '3'
 services:
-    database:
+    database_production:
         image: postgres
         ports:
             - "16738:5432"
@@ -8,5 +8,12 @@ services:
             - POSTGRES_USER=shtips
             - POSTGRES_PASSWORD=shtips
             - POSTGRES_DB=shtips
-#        volumes:
-#            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    database_testing:
+        image: postgres
+        ports:
+            - "16739:5432"
+        environment:
+            - POSTGRES_USER=shtips
+            - POSTGRES_PASSWORD=shtips
+            - POSTGRES_DB=shtips

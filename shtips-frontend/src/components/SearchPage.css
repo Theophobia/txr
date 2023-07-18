@@ -1,0 +1,8 @@
+.search_result {
+	border-radius: 4px;
+	transition: box-shadow 0.3s;
+}
+
+.search_result:hover {
+	box-shadow: 0 0 5px 1px #8bc2ff;
+}

@@ -4,6 +4,7 @@ export interface Event1 {
 }
 
 export interface Event10 {
+	messageId: number,
 	sender: string,
 	timestamp: string,
 	type: "TEXT" | "FILE",
@@ -22,5 +23,9 @@ export interface Event11 {
 }
 
 export interface Event12 {
+	messageId: number,
 	timestamp: string,
+	type: "TEXT" | "FILE",
+	data: string,
+	bonusData: string,
 }

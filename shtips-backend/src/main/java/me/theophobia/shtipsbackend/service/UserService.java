@@ -1,14 +1,14 @@
 package me.theophobia.shtipsbackend.service;
 
-import jakarta.persistence.UniqueConstraint;
+import me.theophobia.shtipsbackend.DatabaseInitializer;
 import me.theophobia.shtipsbackend.repo.UserAvatarRepo;
 import me.theophobia.shtipsbackend.repo.UserRepo;
 import me.theophobia.shtipsbackend.user.User;
 import me.theophobia.shtipsbackend.user.UserAvatar;
-import me.theophobia.shtipsbackend.ws.WebSocketStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,6 +16,7 @@ public final class UserService {
 
 	private final UserRepo userRepo;
 	private final UserAvatarRepo userAvatarRepo;
+	private final DatabaseInitializer databaseInitializer;
 
 	private static UserService instance = null;
 	public static UserService getInstance() {
@@ -23,9 +24,14 @@ public final class UserService {
 	}
 
 	@Autowired
-	public UserService(UserRepo userRepo, UserAvatarRepo userAvatarRepo) {
+	public UserService(
+		UserRepo userRepo,
+		UserAvatarRepo userAvatarRepo,
+		DatabaseInitializer databaseInitializer
+	) {
 		this.userRepo = userRepo;
 		this.userAvatarRepo = userAvatarRepo;
+		this.databaseInitializer = databaseInitializer;
 
 		// TODO: probably a based hack, we ball
 		if (instance == null) {
@@ -72,5 +78,12 @@ public final class UserService {
 
 	public Optional<User> getUserByEmail(String email) {
 		return userRepo.findByEmail(email);
+	}
+
+	public List<User> searchSimilar(String searchTerm, int maxDistance, int limit) {
+		databaseInitializer.ensureExtensionsExist();
+		List<User> similar = userRepo.findSimilarByName(searchTerm, maxDistance, limit);
+
+		return similar;
 	}
 }

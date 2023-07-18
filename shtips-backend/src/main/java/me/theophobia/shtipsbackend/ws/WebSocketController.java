@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 
 @ServerEndpoint(value = "/api/ws")
@@ -52,6 +53,7 @@ public class WebSocketController {
 					// Check if token is valid
 					if (authService.isInvalidToken(e.getUserId(), e.getToken())) {
 						LOGGER.error("Rejected, invalid token {}", e);
+						return;
 					}
 
 					// Add to WebSocketStore
@@ -61,6 +63,7 @@ public class WebSocketController {
 					}
 					else {
 						LOGGER.error("Rejected, web socket store error {}", e);
+						return;
 					}
 				}
 				// We send this data, not receive, no need to check
@@ -76,6 +79,7 @@ public class WebSocketController {
 					// Check if token is valid
 					if (authService.isInvalidToken(e.getUserId(), e.getToken())) {
 						LOGGER.error("Rejected, invalid token {}", e);
+						return;
 					}
 
 					UserService userService = UserService.getInstance();
@@ -84,6 +88,7 @@ public class WebSocketController {
 					Optional<User> optSender = userService.getUser(e.getUserId());
 					if (optSender.isEmpty()) {
 						LOGGER.error("Rejected, sender not found {}", e);
+						return;
 					}
 					User sender = optSender.get();
 
@@ -91,8 +96,15 @@ public class WebSocketController {
 					Optional<User> optReceiver = userService.getUserByUsername(e.getReceiver());
 					if (optReceiver.isEmpty()) {
 						LOGGER.error("Rejected, sender not found {}", e);
+						return;
 					}
 					User receiver = optReceiver.get();
+
+					// Check if message is between the same user
+					if (Objects.equals(sender.getId(), receiver.getId())) {
+						LOGGER.error("Rejected, message between the same user");
+						return;
+					}
 
 					// Build message
 					Message msg = Message.builder()
@@ -106,13 +118,14 @@ public class WebSocketController {
 
 					// Save to database
 					MessageService messageService = MessageService.getInstance();
-					messageService.save(msg);
+					msg = messageService.save(msg);
 					LOGGER.info("Accepted, saved message {}", e);
 
 					// Build update to receiver, if they have a websocket connection
 					WebSocketStore webSocketStore = WebSocketStore.getInstance();
 					if (webSocketStore.getUserSessionMap().containsKey(msg.getReceiver())) {
 						Event10 updateForReceiver = Event10.builder()
+							.messageId(msg.getMessageId())
 							.sender(msg.getSender().getUsername())
 							.timestamp(msg.getTimestamp())
 							.type(e.getType())
@@ -129,7 +142,15 @@ public class WebSocketController {
 					}
 
 					// Confirm that message has been successfully sent
-					Event12 event12 = new Event12(msg.getTimestamp());
+					Event12 event12 = Event12.builder()
+						.messageId(msg.getMessageId())
+						.timestamp(msg.getTimestamp())
+						.type(e.getType())
+						.data(e.getData())
+						.bonusData(e.getBonusData())
+						.build();
+
+					LOGGER.info("{}", event12);
 					webSocketStore.sendMessage(msg.getSender(), "0012" + event12.json());
 
 				}

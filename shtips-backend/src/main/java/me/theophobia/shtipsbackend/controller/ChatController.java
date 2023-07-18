@@ -1,5 +1,7 @@
 package me.theophobia.shtipsbackend.controller;
 
+import me.theophobia.shtipsbackend.chat.AnonymousSenderMessage;
+import me.theophobia.shtipsbackend.util.Format;
 import me.theophobia.shtipsbackend.ws.WebSocketStore;
 import me.theophobia.shtipsbackend.chat.RecentChat;
 import me.theophobia.shtipsbackend.auth.AuthToken;
@@ -10,6 +12,8 @@ import me.theophobia.shtipsbackend.service.MessageService;
 import me.theophobia.shtipsbackend.service.UserService;
 import me.theophobia.shtipsbackend.user.User;
 import me.theophobia.shtipsbackend.util.Tuple4;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriUtils;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -25,6 +30,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping(path = "/api/chat")
 public final class ChatController {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ChatController.class);
 
 	private final MessageService messageService;
 	private final AuthService authService;
@@ -82,11 +89,11 @@ public final class ChatController {
 		@RequestParam long userId,
 		@RequestParam String token,
 		@RequestParam String receiver,
-		@RequestParam int pageNumber,
-		@RequestParam int pageSize
+		@RequestParam(defaultValue = "") String before
 	) {
 		token = UriUtils.decode(token, "UTF-8");
 		receiver = UriUtils.decode(receiver, "UTF-8");
+		before = UriUtils.decode(before, "UTF-8");
 		var t = resolve(userId, receiver, token);
 
 		// Check if error occurred
@@ -94,9 +101,28 @@ public final class ChatController {
 			return t.getD();
 		}
 
-		Pageable pageable = PageRequest.of(pageNumber, pageSize /*, Sort.by("timestamp").descending()*/);
+		// Parse timestamp
+		LocalDateTime timeBefore;
+		LOGGER.info("Timestamp string is {}", before);
+		try {
+			if (before.isEmpty()) {
+				timeBefore = LocalDateTime.now();
+				LOGGER.info("Using LocalDateTime.now() as 'before'");
+			}
+			else {
+				timeBefore = LocalDateTime.from(Format.DATE_TIME_FORMATTER.parse(before));
+				LOGGER.info("Parsed timeBefore as {} {}", Format.DATE_TIME_FORMATTER.format(timeBefore), timeBefore);
+			}
+		}
+		catch (Exception e) {
+			LOGGER.error("Error parsing timestamp");
+			return ResponseEntity.badRequest().build();
+		}
 
-		return ResponseEntity.ok(messageService.getMessagesBetweenUsers(t.getA(), t.getB(), pageable).map(Message::toAnonymousSenderMessage).toList());
+		List<AnonymousSenderMessage> messages = messageService.getMessagesBetweenUsers(t.getA(), t.getB(), timeBefore, 10)
+			.stream().map(Message::toAnonymousSenderMessage).toList();
+
+		return ResponseEntity.ok(messages);
 	}
 
 	@GetMapping(path = "/recent")

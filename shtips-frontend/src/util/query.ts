@@ -1,6 +1,6 @@
 const API_URL = "http://localhost:8080";
 
-export async function apiChatMessageGet(userId: number, token: string, receiver: string, pageNumber: number, pageSize: number): Promise<Response | null> {
+export async function apiChatMessageGet(userId: number, token: string, receiver: string, before: string): Promise<Response | null> {
 	if (token.length === 0 || receiver.length === 0) {
 		return null;
 	}
@@ -9,8 +9,7 @@ export async function apiChatMessageGet(userId: number, token: string, receiver:
 		?userId=${encodeURIComponent(userId)}
 		&token=${encodeURIComponent(token)}
 		&receiver=${encodeURIComponent(receiver)}
-		&pageNumber=${pageNumber}
-		&pageSize=${pageSize}
+		&before=${encodeURIComponent(before)}
 		`, {
 		method: "GET"
 	});
@@ -74,17 +73,31 @@ export async function apiAvatar(username: number): Promise<Response | null> {
 	});
 }
 
-export async function apiChatMessageSend(userId: number, token: string, receiver: string, message: string): Promise<Response | null> {
-	if (token.length === 0 || receiver.length === 0 || message.length === 0) {
+// export async function apiChatMessageSend(userId: number, token: string, receiver: string, message: string): Promise<Response | null> {
+// 	if (token.length === 0 || receiver.length === 0 || message.length === 0) {
+// 		return null;
+// 	}
+//
+// 	return await fetch(`${API_URL}/api/chat/message/send
+// 		?userId=${encodeURIComponent(userId)}
+// 		&token=${encodeURIComponent(token)}
+// 		&receiver=${encodeURIComponent(receiver)}
+// 		&message=${encodeURIComponent(message)}
+// 		`, {
+// 		method: "POST"
+// 	});
+// }
+
+export async function apiUserSearch(userId: number, token: string, search: string): Promise<Response | null> {
+	if (search.length === 0 || token.length === 0) {
 		return null;
 	}
 
-	return await fetch(`${API_URL}/api/chat/message/send
+	return await fetch(`${API_URL}/api/user/search
 		?userId=${encodeURIComponent(userId)}
 		&token=${encodeURIComponent(token)}
-		&receiver=${encodeURIComponent(receiver)}
-		&message=${encodeURIComponent(message)}
+		&search=${encodeURIComponent(search)}
 		`, {
-		method: "POST"
+		method: "GET"
 	});
 }

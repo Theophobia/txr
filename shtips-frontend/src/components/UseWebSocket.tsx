@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import {AuthState} from "../state/authState";
 import {useSelector} from "react-redux";
-import {Update, UpdateType} from "../updateType";
-import Message from "../api/message";
+import Message, {MessageStatus} from "../api/message";
 import {Event1, Event10, Event12} from "../api/event";
 
 const useWebSocket = (props: {onNewMessage: (msg: Message) => void, onMessageConfirm: (event12: Event12) => void}) => {
@@ -51,7 +50,17 @@ const useWebSocket = (props: {onNewMessage: (msg: Message) => void, onMessageCon
 						const event10: Event10 = JSON.parse(data);
 						console.info("Parsed event10:", event10);
 
-						props.onNewMessage(event10);
+						const msg: Message = {
+							messageId: event10.messageId,
+							status: MessageStatus.DELIVERED,
+							sender: event10.sender,
+							timestamp: event10.timestamp,
+							type: event10.type,
+							data: event10.data,
+							bonusData: event10.bonusData,
+						}
+
+						props.onNewMessage(msg);
 						break;
 					}
 					case 12: {
@@ -83,6 +92,10 @@ const useWebSocket = (props: {onNewMessage: (msg: Message) => void, onMessageCon
 		};
 
 		setSocket(newSocket);
+
+		return () => {
+			newSocket.close();
+		}
 	}, []);
 
 	const send = (message: string) => {

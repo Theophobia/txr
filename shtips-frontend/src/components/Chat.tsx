@@ -1,11 +1,11 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import React, {useEffect, useState, useRef} from "react";
-import Message from "../api/message";
+import {useNavigate, useParams} from "react-router-dom";
+import React, {useEffect, useRef, useState} from "react";
+import Message, {MessageStatus} from "../api/message";
 import "./Chat.css";
 import {logout} from "../state/authActions";
 import {AuthState} from "../state/authState";
 import {useDispatch, useSelector} from "react-redux";
-import {apiChatMessageGet, apiChatMessageSend} from "../util/query";
+import {apiChatMessageGet} from "../util/query";
 import useWebSocket from "./UseWebSocket";
 import {Event11, Event12} from "../api/event";
 
@@ -22,6 +22,7 @@ const Chat = () => {
 			if (msg.sender === username) {
 				console.log("Appending message, as sender === username, ", msg.sender, username);
 				setMessages((prev) => [...prev, msg]);
+				scrollToBottom();
 			}
 			else {
 				console.info("onNewMessage, but sender !== username")
@@ -29,6 +30,23 @@ const Chat = () => {
 		},
 		onMessageConfirm: (event12: Event12) => {
 			console.log("Event12", event12);
+
+			if (auth.userData === null) {
+				console.error("This should not happen");
+				return;
+			}
+
+			const msg: Message = {
+				messageId: event12.messageId,
+				status: MessageStatus.SENT,
+				sender: auth.userData.username,
+				timestamp: event12.timestamp,
+				type: event12.type,
+				data: event12.data,
+				bonusData: event12.bonusData,
+			}
+
+			setMessages(prevState => [...prevState, msg]);
 		}
 	});
 
@@ -42,7 +60,7 @@ const Chat = () => {
 
 	const auth: AuthState = useSelector((state) => state.auth);
 
-	const fetchMessages = async (pageNumber: number, deleteMessages: boolean, callbacks?: {callbackData?: ((data: Message[]) => any), callbackFinish?: (() => Promise<any>)}) => {
+	const fetchMessages = async (before: string, deleteMessages: boolean, callbacks?: {callbackData?: ((data: Message[]) => any), callbackFinish?: (() => Promise<any>)}) => {
 		setShowChatContainer(false);
 
 		if (auth.userData === null) {
@@ -57,7 +75,7 @@ const Chat = () => {
 
 		try {
 			// Send authentication request
-			const response = await apiChatMessageGet(auth.userData.userId, auth.token, username, pageNumber, 8);
+			const response = await apiChatMessageGet(auth.userData.userId, auth.token, username, before);
 
 			if (response === null) {
 				throw new Error();
@@ -92,7 +110,7 @@ const Chat = () => {
 
 			setMessages(messagesCopy);
 			setShowChatContainer(true);
-			// console.log(data);
+			console.log(data);
 
 			if (callbacks?.callbackFinish) {
 				await callbacks.callbackFinish();
@@ -114,6 +132,8 @@ const Chat = () => {
 			.trim();
 
 		if (filteredMessage.length === 0) {
+			setMessage("");
+			event.target.value = "";
 			return;
 		}
 
@@ -146,17 +166,10 @@ const Chat = () => {
 
 		send("0011" + JSON.stringify(event11));
 
-		const msg: Message = {
-			sender: auth.userData.username,
-			timestamp: event11.timestamp,
-			type: event11.type,
-			data: event11.data,
-			bonusData: event11.bonusData,
-		}
-
-		setMessages(prevState => [...prevState, msg]);
 		setMessage("");
 		event.target.value = "";
+
+		scrollToBottom();
 	}
 
 	const timeout = (delay: number) => {
@@ -164,7 +177,7 @@ const Chat = () => {
 	}
 
 	const scrollToBottom = async () => {
-		await timeout(300);
+		await timeout(150);
 		// noinspection TypeScriptValidateTypes
 		messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
 		console.log("Scrolling to bottom");
@@ -175,7 +188,8 @@ const Chat = () => {
 		// console.log(scrollTop);
 
 		if (scrollTop === 0 && shouldFetchOlderMessages) {
-			fetchMessages(currPageIndex + 1, false, {callbackData: data => {
+			const before = (messages.length === 0 ? "" : messages[0].timestamp);
+			fetchMessages(before, false, {callbackData: data => {
 				if (data.length !== 0) {
 					setCurrPageIndex(currPageIndex + 1);
 				}
@@ -197,21 +211,10 @@ const Chat = () => {
 		console.log("Username changed to \'", username, '\'');
 
 		setCurrPageIndex(0);
+		setShouldFetchOlderMessages(true);
 
-		fetchMessages(0, true, {callbackFinish: scrollToBottom});
+		fetchMessages("", true, {callbackFinish: scrollToBottom});
 	}, [username]);
-
-	// Fetching after sending a message
-	useEffect(() => {
-		if (!auth.isLoggedIn) {
-			navigate("/");
-			return;
-		}
-		if (shouldRefetch) {
-			setShouldRefetch(false);
-			fetchMessages(0, false, {callbackFinish: scrollToBottom});
-		}
-	}, [shouldRefetch]);
 
 	// Redirect useEffect
 	useEffect(() => {
@@ -220,15 +223,6 @@ const Chat = () => {
 			return;
 		}
 	});
-
-	// Fetch when scrolling up
-	// useEffect(() => {
-	// 	if (!auth.isLoggedIn) {
-	// 		navigate("/");
-	// 		return;
-	// 	}
-	// 	fetchMessages(currPageIndex, false);
-	// }, [currPageIndex]);
 
 	return (
 		<>{!auth.isLoggedIn

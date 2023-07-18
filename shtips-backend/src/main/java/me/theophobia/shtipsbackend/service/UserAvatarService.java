@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class UserAvatarService {
+public final class UserAvatarService {
 	private final UserAvatarRepo userAvatarRepo;
 	private final UserRepo userRepo;
 

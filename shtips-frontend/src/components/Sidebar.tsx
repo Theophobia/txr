@@ -76,11 +76,9 @@ const Sidebar = () => {
 				<>
 					<div className={"sidebar"}>
 						<div className={"search_root"}>
-							<input onChange={(event) => updateSearchedUser(event)}
-								   onClick={() => searchForUser()}
-								   placeholder={"Search"}
-								   className={"search_input"}
-							/>
+							<div className={"search_input"}
+								 onClick={() => navigate("/search")}
+							> Search </div>
 						</div>
 						<div className={"sidebar_chats"}>
 							{recentChats.map((chat) =>

@@ -8,11 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "/api/user")
 public final class UserController {
+
+	private static final int LEVENSHTEIN_DIST = 5;
+	private static final int SEARCH_USERS = 10;
 
 	private final AuthService authService;
 	private final UserService userService;
@@ -100,5 +104,27 @@ public final class UserController {
 		}
 
 		return ResponseEntity.ok(optUser.get().toPasswordlessUser());
+	}
+
+	@GetMapping("/search")
+	public ResponseEntity<?> search(
+		@RequestParam Long userId,
+		@RequestParam String token,
+		@RequestParam String search
+	) {
+		if (authService.isInvalidToken(userId, token)) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		Optional<User> optUser = authService.getUserByToken(token);
+		if (optUser.isEmpty()) {
+			return ResponseEntity.badRequest().build();
+		}
+		User user = optUser.get();
+
+		List<String> usernames = userService.searchSimilar(search, LEVENSHTEIN_DIST, SEARCH_USERS)
+			.stream().map(User::getUsername).filter(s -> !s.equals(user.getUsername())).toList();
+
+		return ResponseEntity.ok(usernames);
 	}
 }
