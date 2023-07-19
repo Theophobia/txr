@@ -6,6 +6,7 @@ import me.theophobia.shtipsbackend.util.Format;
 import java.time.LocalDateTime;
 
 public record AnonymousReceiverMessage(
+	Long messageId,
 	String receiver,
 	LocalDateTime timestamp,
 	MessageDataType type,
@@ -16,6 +17,7 @@ public record AnonymousReceiverMessage(
 	@Override
 	public String toString() {
 		return "{" +
+			"messageId=" + messageId + ", " +
 			"receiver=" + receiver + ", " +
 			"timestamp=" + timestamp + ", " +
 			"type=" + type + ", " +
@@ -26,6 +28,7 @@ public record AnonymousReceiverMessage(
 	@Override
 	public String json() {
 		return "{" +
+			"\"messageId\": " + messageId + ", " +
 			"\"receiver\": \"" + receiver + "\", " +
 			"\"timestamp\": \"" + Format.DATE_TIME_FORMATTER.format(timestamp) + "\", " +
 			"\"type\": \"" + type + "\", " +

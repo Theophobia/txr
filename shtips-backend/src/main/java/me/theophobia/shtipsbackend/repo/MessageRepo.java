@@ -2,8 +2,6 @@ package me.theophobia.shtipsbackend.repo;
 
 import me.theophobia.shtipsbackend.chat.Message;
 import me.theophobia.shtipsbackend.user.User;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface MessageRepo extends JpaRepository<Message, Long> {
-	Page<Message> findAllBySenderAndReceiverOrSenderAndReceiverOrderByTimestampDesc(User sender1, User receiver1, User sender2, User receiver2, Pageable pageable);
+//	Page<Message> findAllBySenderAndReceiverOrSenderAndReceiverOrderByTimestampDesc(User sender1, User receiver1, User sender2, User receiver2, Pageable pageable);
 
 	@Query("SELECT m FROM Message m " +
 		"WHERE (m.sender.id = :userId OR m.receiver.id = :userId) " +

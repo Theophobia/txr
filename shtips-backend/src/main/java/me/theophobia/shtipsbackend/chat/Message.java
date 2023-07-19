@@ -41,6 +41,7 @@ public final class Message {
 
 	public AnonymousSenderMessage toAnonymousSenderMessage() {
 		return new AnonymousSenderMessage(
+			messageId,
 			sender.getUsername(),
 			timestamp,
 			type,
@@ -51,6 +52,7 @@ public final class Message {
 
 	public AnonymousReceiverMessage toAnonymousReceiverMessage() {
 		return new AnonymousReceiverMessage(
+			messageId,
 			receiver.getUsername(),
 			timestamp,
 			type,

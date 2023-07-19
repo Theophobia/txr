@@ -14,7 +14,6 @@ const Chat = () => {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [message, setMessage] = useState("");
 
-	const [shouldRefetch, setShouldRefetch] = useState(false);
 	const [shouldFetchOlderMessages, setShouldFetchOlderMessages] = useState(true);
 
 	const {send} = useWebSocket({
