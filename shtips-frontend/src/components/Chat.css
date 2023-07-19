@@ -109,5 +109,34 @@
 
 .chat_fodder {
 	width: 100%;
+	height: 30vh;
+}
+
+.chat_get_more_messages_container {
+	width: 100%;
 	height: 10vh;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.chat_get_more_messages_button {
+	background-color: #dbdbdb;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	user-select: none;
+
+	height: 1.5em;
+	width: 10em;
+
+	border-radius: 4px;
+	transition: box-shadow 0.3s;
+}
+
+.chat_get_more_messages_button:hover {
+	box-shadow: 0 0 5px 1px #8bc2ff;
 }

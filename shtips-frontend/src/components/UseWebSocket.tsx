@@ -2,9 +2,13 @@ import React, {useEffect, useState} from "react";
 import {AuthState} from "../state/authState";
 import {useSelector} from "react-redux";
 import Message, {MessageStatus} from "../api/message";
-import {Event1, Event10, Event12} from "../api/event";
+import {Event1, Event10, Event12, Event14} from "../api/event";
 
-const useWebSocket = (props: {onNewMessage: (msg: Message) => void, onMessageConfirm: (event12: Event12) => void}) => {
+const useWebSocket = (props: {
+	onNewMessage: (msg: Message) => void,
+	onMessageConfirm: (event12: Event12) => void,
+	onMessageFetched: (event14: Event14) => void,
+}) => {
 	const [socket, setSocket] = useState<WebSocket | null>(null);
 
 	const auth: AuthState = useSelector((state) => state.auth);
@@ -63,6 +67,7 @@ const useWebSocket = (props: {onNewMessage: (msg: Message) => void, onMessageCon
 						props.onNewMessage(msg);
 						break;
 					}
+
 					case 12: {
 						const event12: Event12 = JSON.parse(data);
 						console.info("Parsed event12:", event12);
@@ -70,6 +75,15 @@ const useWebSocket = (props: {onNewMessage: (msg: Message) => void, onMessageCon
 						props.onMessageConfirm(event12);
 						break;
 					}
+
+					case 14: {
+						const event14: Event14 = JSON.parse(data);
+						console.info("Parsed event14:", event14);
+
+						props.onMessageFetched(event14);
+						break;
+					}
+
 					default: {
 						console.error("Could not match ID, do we have different API versions?");
 						break;

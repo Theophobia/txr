@@ -7,10 +7,11 @@ import {AuthState} from "../state/authState";
 import {useDispatch, useSelector} from "react-redux";
 import {apiChatMessageGet} from "../util/query";
 import useWebSocket from "./UseWebSocket";
-import {Event11, Event12} from "../api/event";
+import {Event11, Event12, Event13, Event14} from "../api/event";
 
 const Chat = () => {
 	const {username} = useParams();
+	const usernameRef = useRef<string>(username);
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [message, setMessage] = useState("");
 
@@ -19,7 +20,7 @@ const Chat = () => {
 	const {send} = useWebSocket({
 		onNewMessage: (msg: Message) => {
 			if (msg) {
-				if (msg.sender === username) {
+				if (msg.sender === usernameRef.current) {
 					console.log("Appending message, as sender === username, ", msg.sender, username);
 					setMessages((prev) => [...prev, msg]);
 					scrollToBottom();
@@ -49,6 +50,22 @@ const Chat = () => {
 				}
 
 				setMessages(prevState => [...prevState, msg]);
+			}
+		},
+		onMessageFetched: (event14: Event14) => {
+			if (event14) {
+				if (event14.sender === usernameRef.current) {
+					if (event14.messages.length === 0) {
+						setShouldFetchOlderMessages(false);
+					}
+					else {
+						setMessages(prevState => [...event14.messages, ...prevState]);
+					}
+				}
+				else {
+					console.error("Fetching messages for user, that is not in the current screen");
+					return;
+				}
 			}
 		}
 	});
@@ -103,12 +120,12 @@ const Chat = () => {
 			}
 
 			data.forEach((m) => {
-				if (!messagesCopy.find((value) => value.timestamp === m.timestamp && value.sender === m.sender)) {
+				if (!messagesCopy.find((value) => value.messageId === m.messageId)) {
 					messagesCopy.push(m);
 				}
 			});
 			messagesCopy.sort((a, b) => {
-				return a.timestamp.concat(a.sender).localeCompare(b.timestamp.concat(b.sender))
+				return a.messageId > b.messageId ? 1 : -1;
 			});
 
 			setMessages(messagesCopy);
@@ -188,21 +205,30 @@ const Chat = () => {
 
 	const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
 		const scrollTop = event.currentTarget.scrollTop;
-		// console.log(scrollTop);
 
 		if (scrollTop === 0 && shouldFetchOlderMessages) {
-			const before = (messages.length === 0 ? "" : messages[0].timestamp);
-			fetchMessages(before, false, {callbackData: data => {
-				if (data.length !== 0) {
-					setCurrPageIndex(currPageIndex + 1);
-				}
-				else {
-					setShouldFetchOlderMessages(false);
-				}
-			}});
+			sendEvent13();
 			console.log(scrollTop);
 			console.log("a = " + event.currentTarget.scrollHeight);
 		}
+	};
+
+	const sendEvent13 = () => {
+		const before = (messages.length === 0 ? "" : messages[0].timestamp);
+
+		if (auth.userData === null || auth.token === null) {
+			console.log("Might be an error, and might need to log out.");
+			return;
+		}
+
+		const event13: Event13 = {
+			userId: auth.userData.userId,
+			token: auth.token,
+			receiver: username,
+			timestamp: before,
+		};
+		console.log("event13 = ", event13);
+		send("0013" + JSON.stringify(event13));
 	};
 
 	// Initial
@@ -212,6 +238,7 @@ const Chat = () => {
 			return;
 		}
 		console.log("Username changed to \'", username, '\'');
+		usernameRef.current = username;
 
 		setCurrPageIndex(0);
 		setShouldFetchOlderMessages(true);
@@ -240,8 +267,16 @@ const Chat = () => {
 					<div className={"chat_header"}>{username}</div>
 					{showChatContainer && <>
 						<div className={"chat_container"}
-							 onScroll={(event) => handleScroll(event)}>
+							 onScroll={(event) => handleScroll(event)}
+						>
 							<div className={"chat_fodder"}/>
+							<div className={"chat_get_more_messages_container"}>
+								<div className={"chat_get_more_messages_button"}
+									 onClick={() => sendEvent13()}
+								>
+									Get more messages
+								</div>
+							</div>
 							{messages.length !== 0 && messages.map((m) =>
 								<div key={m.timestamp.concat(m.sender)}
 									 className={m.sender === username ? "msg_outer_box_other" : "msg_outer_box_me"}

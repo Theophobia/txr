@@ -3,6 +3,8 @@ package me.theophobia.shtipsbackend.ws.event;
 import lombok.*;
 import me.theophobia.shtipsbackend.IJson;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,15 +16,13 @@ public class Event13 implements IJson {
 	private long userId;
 	private String token;
 	private String receiver;
-	private long pageSize;
-	private long pageNumber;
+	private LocalDateTime timestamp;
 
 	@Override
 	public String json() {
 		return "{\"userId=" + userId +
 			", \"token\": \"" + token + "\"" +
 			", \"receiver\": \"" + receiver + "\"" +
-			", \"pageSize\": " + pageSize +
-			", \"pageSize\": " + pageNumber + "\"}";
+			", \"timestamp\": \"" + timestamp + "\"}";
 	}
 }

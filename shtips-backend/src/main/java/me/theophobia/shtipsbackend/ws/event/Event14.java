@@ -14,12 +14,13 @@ import java.util.List;
 @ToString
 @Builder
 public class Event14 implements IJson {
+	private String sender;
 	private List<AnonymousSenderMessage> messages;
 
 	@Override
 	public String json() {
 		String mapped = String.join(", ", messages.stream().map(AnonymousSenderMessage::json).toList());
 
-		return "{\"messages\": [" + mapped + "]}";
+		return "{\"sender\": \"" + sender + "\", \"messages\": [" + mapped + "]}";
 	}
 }

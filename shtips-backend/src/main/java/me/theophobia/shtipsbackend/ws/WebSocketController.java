@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -40,15 +41,18 @@ public class WebSocketController {
 		String idString = message.substring(0, 4);
 		String data = message.substring(4);
 		int id = Integer.parseInt(idString);
-		LOGGER.info("id -> {}", id);
+//		LOGGER.info("id -> {}", id);
+
+		AuthService authService = AuthService.getInstance();
+		UserService userService = UserService.getInstance();
+		MessageService messageService = MessageService.getInstance();
+		WebSocketStore webSocketStore = WebSocketStore.getInstance();
 
 		try {
 			switch (id) {
 				case 1 -> {
 					Event1 e = GSON.fromJson(data, Event1.class);
 					LOGGER.info("event1 = {}", e);
-
-					AuthService authService = AuthService.getInstance();
 
 					// Check if token is valid
 					if (authService.isInvalidToken(e.getUserId(), e.getToken())) {
@@ -57,7 +61,6 @@ public class WebSocketController {
 					}
 
 					// Add to WebSocketStore
-					WebSocketStore webSocketStore = WebSocketStore.getInstance();
 					if (webSocketStore.addSession(e.getToken(), session).isPresent()) {
 						LOGGER.info("Accepted {}", e);
 					}
@@ -74,15 +77,11 @@ public class WebSocketController {
 					Event11 e = GSON.fromJson(data, Event11.class);
 					LOGGER.info("event11 = {}", e);
 
-					AuthService authService = AuthService.getInstance();
-
 					// Check if token is valid
 					if (authService.isInvalidToken(e.getUserId(), e.getToken())) {
 						LOGGER.error("Rejected, invalid token {}", e);
 						return;
 					}
-
-					UserService userService = UserService.getInstance();
 
 					// Get sender from UserService
 					Optional<User> optSender = userService.getUser(e.getUserId());
@@ -117,12 +116,10 @@ public class WebSocketController {
 						.build();
 
 					// Save to database
-					MessageService messageService = MessageService.getInstance();
 					msg = messageService.save(msg);
 					LOGGER.info("Accepted, saved message {}", e);
 
 					// Build update to receiver, if they have a websocket connection
-					WebSocketStore webSocketStore = WebSocketStore.getInstance();
 					if (webSocketStore.getUserSessionMap().containsKey(msg.getReceiver())) {
 						Event10 updateForReceiver = Event10.builder()
 							.messageId(msg.getMessageId())
@@ -156,6 +153,44 @@ public class WebSocketController {
 				}
 				case 13 -> {
 					Event13 e = GSON.fromJson(data, Event13.class);
+					LOGGER.info("event13 = {}", e);
+
+					// Check if token is valid
+					if (authService.isInvalidToken(e.getUserId(), e.getToken())) {
+						LOGGER.error("Rejected, invalid token {}", e);
+						return;
+					}
+
+					// Get sender from UserService
+					Optional<User> optSender = userService.getUser(e.getUserId());
+					if (optSender.isEmpty()) {
+						LOGGER.error("Rejected, sender not found {}", e);
+						return;
+					}
+					User sender = optSender.get();
+
+					// Get receiver from UserService
+					Optional<User> optReceiver = userService.getUserByUsername(e.getReceiver());
+					if (optReceiver.isEmpty()) {
+						LOGGER.error("Rejected, sender not found {}", e);
+						return;
+					}
+					User receiver = optReceiver.get();
+
+					// Check if message is between the same user
+					if (Objects.equals(sender.getId(), receiver.getId())) {
+						LOGGER.error("Rejected, message between the same user");
+						return;
+					}
+
+					// Fetch messages
+					List<Message> messages = messageService.getMessagesBetweenUsers(sender, receiver, e.getTimestamp(), 10);
+
+					// Build event
+					Event14 event14 = new Event14(receiver.getUsername(), messages.stream().map(Message::toAnonymousSenderMessage).toList());
+
+					LOGGER.info("{}", event14);
+					webSocketStore.sendMessage(sender, "0014" + event14.json());
 				}
 				// We send this data, not receive, no need to check
 //				case 14 -> {
