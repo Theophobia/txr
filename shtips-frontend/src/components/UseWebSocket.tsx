@@ -104,7 +104,7 @@ const useWebSocket = (props: {onNewMessage: (msg: Message) => void, onMessageCon
 		}
 	}
 
-	return [send];
+	return {send};
 };
 
 export default useWebSocket;

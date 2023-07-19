@@ -17,36 +17,40 @@ const Chat = () => {
 	const [shouldRefetch, setShouldRefetch] = useState(false);
 	const [shouldFetchOlderMessages, setShouldFetchOlderMessages] = useState(true);
 
-	const [send] = useWebSocket({
+	const {send} = useWebSocket({
 		onNewMessage: (msg: Message) => {
-			if (msg.sender === username) {
-				console.log("Appending message, as sender === username, ", msg.sender, username);
-				setMessages((prev) => [...prev, msg]);
-				scrollToBottom();
-			}
-			else {
-				console.info("onNewMessage, but sender !== username")
+			if (msg) {
+				if (msg.sender === username) {
+					console.log("Appending message, as sender === username, ", msg.sender, username);
+					setMessages((prev) => [...prev, msg]);
+					scrollToBottom();
+				}
+				else {
+					console.info("onNewMessage, but sender !== username")
+				}
 			}
 		},
 		onMessageConfirm: (event12: Event12) => {
-			console.log("Event12", event12);
+			if (event12) {
+				console.log("Event12", event12);
 
-			if (auth.userData === null) {
-				console.error("This should not happen");
-				return;
+				if (auth.userData === null) {
+					console.error("This should not happen");
+					return;
+				}
+
+				const msg: Message = {
+					messageId: event12.messageId,
+					status: MessageStatus.SENT,
+					sender: auth.userData.username,
+					timestamp: event12.timestamp,
+					type: event12.type,
+					data: event12.data,
+					bonusData: event12.bonusData,
+				}
+
+				setMessages(prevState => [...prevState, msg]);
 			}
-
-			const msg: Message = {
-				messageId: event12.messageId,
-				status: MessageStatus.SENT,
-				sender: auth.userData.username,
-				timestamp: event12.timestamp,
-				type: event12.type,
-				data: event12.data,
-				bonusData: event12.bonusData,
-			}
-
-			setMessages(prevState => [...prevState, msg]);
 		}
 	});
 
@@ -214,6 +218,7 @@ const Chat = () => {
 		setShouldFetchOlderMessages(true);
 
 		fetchMessages("", true, {callbackFinish: scrollToBottom});
+
 	}, [username]);
 
 	// Redirect useEffect
