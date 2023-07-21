@@ -27,7 +27,6 @@ public final class TestController {
 	private final UserService userService;
 	private final UserAvatarService userAvatarService;
 
-
 	@Autowired
 	public TestController(MessageService messageService, AuthService authService, UserService userService, UserAvatarService userAvatarService) {
 		this.messageService = messageService;
@@ -70,21 +69,4 @@ public final class TestController {
 		return ResponseEntity.ok().build();
 	}
 
-	@GetMapping("/getAvatar")
-	public ResponseEntity<?> getAvatar(
-		@RequestParam String username
-	) {
-		Optional<UserAvatar> optAvatar = userAvatarService.getUserAvatarByUsername(username);
-		if (optAvatar.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Could not find specified user");
-		}
-
-		UserAvatar userAvatar = optAvatar.get();
-
-		// Set the appropriate headers
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.IMAGE_JPEG);
-
-		return ResponseEntity.ok().headers(headers).body(userAvatar.getImageData36());
- 	}
 }

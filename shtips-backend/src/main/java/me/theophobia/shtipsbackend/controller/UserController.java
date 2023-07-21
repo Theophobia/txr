@@ -1,10 +1,14 @@
 package me.theophobia.shtipsbackend.controller;
 
 import me.theophobia.shtipsbackend.service.AuthService;
+import me.theophobia.shtipsbackend.service.UserAvatarService;
 import me.theophobia.shtipsbackend.service.UserService;
 import me.theophobia.shtipsbackend.user.*;
 import me.theophobia.shtipsbackend.auth.AuthToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,11 +24,17 @@ public final class UserController {
 
 	private final AuthService authService;
 	private final UserService userService;
+	private final UserAvatarService userAvatarService;
 
 	@Autowired
-	public UserController(AuthService authService, UserService userService) {
+	public UserController(
+		AuthService authService,
+		UserService userService,
+		UserAvatarService userAvatarService
+	) {
 		this.authService = authService;
 		this.userService = userService;
+		this.userAvatarService = userAvatarService;
 	}
 
 	// TODO: Move to auth controller
@@ -126,5 +136,31 @@ public final class UserController {
 			.stream().map(User::getUsername).filter(s -> !s.equals(user.getUsername())).toList();
 
 		return ResponseEntity.ok(usernames);
+	}
+
+	@GetMapping("/avatar")
+	public ResponseEntity<?> getAvatar(
+		@RequestParam String username
+	) {
+		Optional<User> optUser = userService.getUserByUsername(username);
+		if (optUser.isEmpty()) {
+			return ResponseEntity.badRequest().body("Could not find specified user");
+		}
+		User user = optUser.get();
+
+		Optional<UserAvatar> optAvatar = userAvatarService.getUserAvatar(user);
+		if (optAvatar.isEmpty()) {
+			UserAvatar avatar = new UserAvatar();
+			avatar.setUser(user);
+			optAvatar = Optional.of(userAvatarService.save(avatar));
+		}
+
+		UserAvatar userAvatar = optAvatar.get();
+
+		// Set the appropriate headers
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.IMAGE_JPEG);
+
+		return ResponseEntity.ok().headers(headers).body(userAvatar.getImageData36());
 	}
 }

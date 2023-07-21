@@ -1,7 +1,7 @@
 import {useNavigate, useParams} from "react-router-dom";
 import React, {useEffect, useRef, useState} from "react";
 import Message, {MessageStatus} from "../api/message";
-import "./Chat.css";
+import "./ChatPage.css";
 import {logout} from "../state/authActions";
 import {AuthState} from "../state/authState";
 import {useDispatch, useSelector} from "react-redux";
@@ -9,13 +9,19 @@ import {apiChatMessageGet} from "../util/query";
 import useWebSocket from "./UseWebSocket";
 import {Event11, Event12, Event13, Event14} from "../api/event";
 
-const Chat = () => {
+const ChatPage = () => {
 	const {username} = useParams();
 	const usernameRef = useRef<string>(username);
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [message, setMessage] = useState("");
-
 	const [shouldFetchOlderMessages, setShouldFetchOlderMessages] = useState(true);
+	const [showChatContainer, setShowChatContainer] = useState(true);
+
+	const auth: AuthState = useSelector((state) => state.auth);
+	const dispatch = useDispatch();
+	const navigate = useNavigate();
+
+	const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
 	const {send} = useWebSocket({
 		onNewMessage: (msg: Message) => {
@@ -70,18 +76,8 @@ const Chat = () => {
 		}
 	});
 
-	const [showChatContainer, setShowChatContainer] = useState(true);
-
-	const [currPageIndex, setCurrPageIndex] = useState<number>(0);
-
-	const dispatch = useDispatch();
-	const navigate = useNavigate();
-	const messagesEndRef = useRef<HTMLDivElement | null>(null);
-
-	const auth: AuthState = useSelector((state) => state.auth);
-
 	const fetchMessages = async (before: string, deleteMessages: boolean, callbacks?: {callbackData?: ((data: Message[]) => any), callbackFinish?: (() => Promise<any>)}) => {
-		setShowChatContainer(false);
+		// setShowChatContainer(false);
 
 		if (auth.userData === null) {
 			console.log("User data is null, returning");
@@ -129,7 +125,7 @@ const Chat = () => {
 			});
 
 			setMessages(messagesCopy);
-			setShowChatContainer(true);
+			// setShowChatContainer(true);
 			console.log(data);
 
 			if (callbacks?.callbackFinish) {
@@ -164,7 +160,7 @@ const Chat = () => {
 		const now = new Date();
 
 		const year = now.getFullYear();
-		const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
+		const month = (now.getMonth() + 1 /* Months are zero-based */).toString().padStart(2, '0');
 		const day = now.getDate().toString().padStart(2, '0');
 		const hours = now.getHours().toString().padStart(2, '0');
 		const minutes = now.getMinutes().toString().padStart(2, '0');
@@ -240,7 +236,6 @@ const Chat = () => {
 		console.log("Username changed to \'", username, '\'');
 		usernameRef.current = username;
 
-		setCurrPageIndex(0);
 		setShouldFetchOlderMessages(true);
 
 		fetchMessages("", true, {callbackFinish: scrollToBottom});
@@ -268,23 +263,34 @@ const Chat = () => {
 					{showChatContainer && <>
 						<div className={"chat_container"}
 							 onScroll={(event) => handleScroll(event)}
+
 						>
 							<div className={"chat_fodder"}/>
 							<div className={"chat_get_more_messages_container"}>
 								<div className={"chat_get_more_messages_button"}
-									 onClick={() => sendEvent13()}
+									 onClick={() => {
+										 // const elem = document.getElementById("growable")
+										 // if (!elem.classList.contains("chat_grow_up_100px")) {
+											//  elem.classList.add("chat_grow_up_100px")
+										 // }
+										 // else {
+											//  elem.classList.remove("chat_grow_up_100px")
+										 // }
+										 sendEvent13();
+									 }}
 								>
 									Get more messages
 								</div>
 							</div>
+							<div id={"growable"} className={"chat_grow"}/>
 							{messages.length !== 0 && messages.map((m) =>
 								<div key={m.timestamp.concat(m.sender)}
 									 className={m.sender === username ? "msg_outer_box_other" : "msg_outer_box_me"}
 								>
 									{m.sender === username ?
-										<img className={"msg_img_other"} src={`http://localhost:8080/api/test/getAvatar?username=${username}`}></img>
+										<img className={"msg_img_other"} src={`http://localhost:8080/api/user/avatar?username=${username}`}></img>
 										:
-										<img className={"msg_img_me"} src={`http://localhost:8080/api/test/getAvatar?username=${auth.userData?.username}`}></img>
+										<img className={"msg_img_me"} src={`http://localhost:8080/api/user/avatar?username=${auth.userData?.username}`}></img>
 									}
 									<div className={m.sender === username ? "msg_any msg_other" : "msg_any msg_me"}>
 										{m.data}
@@ -297,7 +303,7 @@ const Chat = () => {
 						<textarea className={"chat_input"}
 								  onKeyDown={(event) => sendMessage(event)}
 								  onChange={(event) => setMessage(event.target.value)}
-
+								  key={username}
 						/>
 						</div>
 					</>}
@@ -307,4 +313,4 @@ const Chat = () => {
 	);
 };
 
-export default Chat;
+export default ChatPage;

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {AuthState} from "../state/authState";
 import {apiUserSearch} from "../util/query";
 import {useNavigate} from "react-router-dom";
@@ -27,6 +27,14 @@ const SearchPage = () => {
 
 		event.target.value = "";
 	}
+
+	// Redirect useEffect
+	useEffect(() => {
+		if (!auth.isLoggedIn) {
+			navigate("/");
+			return;
+		}
+	});
 
 	return (
 		<>{!auth.isLoggedIn

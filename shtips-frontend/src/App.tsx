@@ -3,10 +3,11 @@ import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import "./App.css";
 import LoginPage from "./components/LoginPage";
 import MainPage from "./components/MainPage";
-import Chat from "./components/Chat";
+import ChatPage from "./components/ChatPage";
 import Sidebar from "./components/Sidebar";
 import RegisterPage from "./components/RegisterPage";
 import SearchPage from "./components/SearchPage";
+import UserProfilePage from "./components/UserProfilePage";
 
 function App() {
 
@@ -18,7 +19,8 @@ function App() {
 					<Route path="/" element={<MainPage/>}/>
 					<Route path="/login" element={<LoginPage/>} />
 					<Route path="/register" element={<RegisterPage/>} />
-					<Route path="/chat/:username" element={<Chat/>}/>
+					<Route path="/chat/:username" element={<ChatPage/>}/>
+					<Route path="/profile" element={<UserProfilePage/>}/>
 					<Route path="/search" element={<SearchPage/>}/>
 				</Routes>
 			</Router>

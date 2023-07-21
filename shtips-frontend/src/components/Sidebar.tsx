@@ -1,16 +1,15 @@
 import {AuthState} from "../state/authState";
 import {useDispatch, useSelector} from "react-redux";
-import { useNavigate } from "react-router-dom";
-import {ChangeEvent, useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {useEffect, useState} from "react";
 import "./Sidebar.css"
 
 import RecentChat from "../api/recentChat";
 import {logout} from "../state/authActions";
-import {apiAvatar, apiChatRecent} from "../util/query";
+import {apiChatRecent} from "../util/query";
 
 const Sidebar = () => {
 	const [recentChats, setRecentChats] = useState<RecentChat[]>([]);
-	const [searchedUser, setSearchedUser] = useState<null | string>(null);
 
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
@@ -58,27 +57,27 @@ const Sidebar = () => {
 		}
 	}
 
-	function updateSearchedUser(event: ChangeEvent<HTMLInputElement>) {
-		const value = event.target.value;
-		setSearchedUser(value.length === 0 ? null : value);
-	}
-
-	async function searchForUser() {
-
-	}
-
 	return (
 		<>
-			{!auth.isLoggedIn || !show ?
+			{!auth.isLoggedIn || !show || auth.userData === null ?
 				<>
 				</>
 				:
 				<>
 					<div className={"sidebar"}>
 						<div className={"search_root"}>
+							<div className={"current_user_container"}>
+								<img className={"current_user_avatar"}
+									 src={`http://localhost:8080/api/user/avatar?username=${auth.userData.username}`}
+								/>
+								<div className={"current_user_activity_status"}/>
+								<div className={"current_user_activity_status_outline"}/>
+							</div>
 							<div className={"search_input"}
 								 onClick={() => navigate("/search")}
-							> Search </div>
+							>
+								Search
+							</div>
 						</div>
 						<div className={"sidebar_chats"}>
 							{recentChats.map((chat) =>
@@ -86,7 +85,8 @@ const Sidebar = () => {
 									 className={"sidebar_chat_container"}
 									 onClick={() => navigate("/chat/".concat(chat.other_person_username))}
 								>
-									<img className={"chat_avatar"} src={`http://localhost:8080/api/test/getAvatar?username=${chat.other_person_username}`}/>
+									<img className={"chat_avatar"}
+										 src={`http://localhost:8080/api/user/avatar?username=${chat.other_person_username}`}/>
 									<div className={"chat_username_container flex_centered"}>
 										{chat.other_person_username}
 									</div>

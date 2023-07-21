@@ -36,9 +36,9 @@ public final class UserAvatarService {
 		return userAvatarRepo.findByUser(user);
 	}
 
-	public void save(UserAvatar userAvatar) {
+	public UserAvatar save(UserAvatar userAvatar) {
 		Optional<UserAvatar> optAvatar = getUserAvatarByUserId(userAvatar.getUser().getId());
 		optAvatar.ifPresent(userAvatarRepo::delete);
-		userAvatarRepo.save(userAvatar);
+		return userAvatarRepo.save(userAvatar);
 	}
 }
