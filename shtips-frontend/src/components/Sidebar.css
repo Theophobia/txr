@@ -1,15 +1,16 @@
 .sidebar {
 	min-width: 120px;
 	max-width: 120px;
-	height: 100vh;
+	height: 100%;
 
 	font-family: Arial, monospace;
 
 	/*box-shadow: 3px 0 10px 3px #d7d7d7;*/
 	background-color: #3e3e3e;
-	color: #EAEAEA;
+	color: #C0C0C0;
 
-	padding: 5px;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
 .sidebar_chat_container {
@@ -23,7 +24,7 @@
 	user-select: none;
 
 	border-radius: 7px;
-	padding: 2px;
+	padding: 4px 4px 4px;
 
 	transition: background-color 0.1s ease-in-out;
 }
@@ -81,36 +82,13 @@
 }
 
 .current_user_container {
-	position: relative;
 }
 
 .current_user_avatar {
-	border-radius: 100px;
-
-	max-width: 36px;
-	min-width: 36px;
-	max-height: 36px;
-	min-height: 36px;
 }
 
 .current_user_activity_status {
-	position: relative;
-	top: calc(-14px);
-	left: calc(28px);
-	width: 9px;
-	height: 9px;
-	background-color: #00FF00;
-	border-radius: 100px;
-	z-index: 2;
 }
 
 .current_user_activity_status_outline {
-	position: relative;
-	top: calc(-25px);
-	left: calc(26px);
-	width: 13px;
-	height: 13px;
-	background-color: #FFFFFF;
-	border-radius: 100px;
-	z-index: 1;
 }

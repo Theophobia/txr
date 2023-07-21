@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {AuthState} from "../state/authState";
+import {AuthState} from "../api/authState";
 import {useSelector} from "react-redux";
 import Message, {MessageStatus} from "../api/message";
 import {Event1, Event10, Event12, Event14} from "../api/event";

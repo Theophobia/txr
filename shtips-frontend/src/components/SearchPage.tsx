@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {AuthState} from "../state/authState";
+import {AuthState} from "../api/authState";
 import {apiUserSearch} from "../util/query";
 import {useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";

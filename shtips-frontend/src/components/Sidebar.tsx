@@ -1,4 +1,4 @@
-import {AuthState} from "../state/authState";
+import {AuthState} from "../api/authState";
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
@@ -7,6 +7,7 @@ import "./Sidebar.css"
 import RecentChat from "../api/recentChat";
 import {logout} from "../state/authActions";
 import {apiChatRecent} from "../util/query";
+import AvatarComponent from "./AvatarComponent";
 
 const Sidebar = () => {
 	const [recentChats, setRecentChats] = useState<RecentChat[]>([]);
@@ -66,13 +67,8 @@ const Sidebar = () => {
 				<>
 					<div className={"sidebar"}>
 						<div className={"search_root"}>
-							<div className={"current_user_container"}>
-								<img className={"current_user_avatar"}
-									 src={`http://localhost:8080/api/user/avatar?username=${auth.userData.username}`}
-								/>
-								<div className={"current_user_activity_status"}/>
-								<div className={"current_user_activity_status_outline"}/>
-							</div>
+							<AvatarComponent username={auth.userData.username}/>
+							<div style={{paddingBottom: "10px"}}/>
 							<div className={"search_input"}
 								 onClick={() => navigate("/search")}
 							>
@@ -85,8 +81,7 @@ const Sidebar = () => {
 									 className={"sidebar_chat_container"}
 									 onClick={() => navigate("/chat/".concat(chat.other_person_username))}
 								>
-									<img className={"chat_avatar"}
-										 src={`http://localhost:8080/api/user/avatar?username=${chat.other_person_username}`}/>
+									<AvatarComponent username={chat.other_person_username}/>
 									<div className={"chat_username_container flex_centered"}>
 										{chat.other_person_username}
 									</div>

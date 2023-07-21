@@ -3,7 +3,7 @@ import React, {useEffect, useRef, useState} from "react";
 import Message, {MessageStatus} from "../api/message";
 import "./ChatPage.css";
 import {logout} from "../state/authActions";
-import {AuthState} from "../state/authState";
+import {AuthState} from "../api/authState";
 import {useDispatch, useSelector} from "react-redux";
 import {apiChatMessageGet} from "../util/query";
 import useWebSocket from "./UseWebSocket";
@@ -282,15 +282,14 @@ const ChatPage = () => {
 									Get more messages
 								</div>
 							</div>
-							<div id={"growable"} className={"chat_grow"}/>
-							{messages.length !== 0 && messages.map((m) =>
+							{messages.length !== 0 && messages.map((m, i) =>
 								<div key={m.timestamp.concat(m.sender)}
 									 className={m.sender === username ? "msg_outer_box_other" : "msg_outer_box_me"}
 								>
 									{m.sender === username ?
-										<img className={"msg_img_other"} src={`http://localhost:8080/api/user/avatar?username=${username}`}></img>
+										<img className={"msg_img msg_img_other"} src={`http://localhost:8080/api/user/avatar?username=${username}`}></img>
 										:
-										<img className={"msg_img_me"} src={`http://localhost:8080/api/user/avatar?username=${auth.userData?.username}`}></img>
+										<img className={"msg_img msg_img_me"} src={`http://localhost:8080/api/user/avatar?username=${auth.userData?.username}`}></img>
 									}
 									<div className={m.sender === username ? "msg_any msg_other" : "msg_any msg_me"}>
 										{m.data}

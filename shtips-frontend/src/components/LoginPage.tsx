@@ -4,7 +4,7 @@ import UserData from "../api/userData";
 import {loginSuccess} from "../state/authActions";
 import {useDispatch, useSelector} from "react-redux";
 import {sidebarShown} from "../state/visibilityActions";
-import {AuthState} from "../state/authState";
+import {AuthState} from "../api/authState";
 import {apiUserInfo, apiUserLogin} from "../util/query";
 import "./LoginPage.css";
 

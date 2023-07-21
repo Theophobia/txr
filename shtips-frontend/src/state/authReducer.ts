@@ -1,4 +1,4 @@
-import {AuthState} from "./authState";
+import {AuthState} from "../api/authState";
 
 const initialState: AuthState = {
 	isLoggedIn: false,

@@ -1,4 +1,4 @@
-import UserData from "../api/userData";
+import UserData from "./userData";
 
 export interface AuthState {
 	isLoggedIn: boolean,

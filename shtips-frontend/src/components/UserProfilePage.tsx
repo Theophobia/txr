@@ -1,5 +1,5 @@
 import {useNavigate, useParams} from "react-router-dom";
-import {AuthState} from "../state/authState";
+import {AuthState} from "../api/authState";
 import {useDispatch, useSelector} from "react-redux";
 import React, {useEffect, useState} from "react";
 import useWebSocket from "./UseWebSocket";

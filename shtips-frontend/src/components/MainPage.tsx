@@ -1,11 +1,12 @@
 import {useDispatch, useSelector} from "react-redux";
 import { useNavigate } from "react-router-dom";
 import UserData from "../api/userData";
-import {AuthState} from "../state/authState";
+import {AuthState} from "../api/authState";
 import {loginSuccess, logout} from "../state/authActions";
 import React from "react";
 import Sidebar from "./Sidebar";
 import {sidebarHidden} from "../state/visibilityActions";
+import AvatarComponent from "./AvatarComponent";
 
 const MainPage = () => {
 	// const userData: UserData | null = useSelector((state) => state.authentication.userData);
