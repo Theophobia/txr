@@ -3,6 +3,7 @@ Event ID 0001		C->S	Sending auth token, used to register the WS connection
 token		--->	()
 
 
+
 Event ID 0010		C<-S	Receiving a message when somebody remote has sent it
 
 					messageId
@@ -11,6 +12,7 @@ Event ID 0010		C<-S	Receiving a message when somebody remote has sent it
 (receiver)	<---	type,
 					data,
 					bonusData
+
 
 
 Event ID 0011		C->S	Sending a message to somebody
@@ -24,6 +26,7 @@ data,
 bonusData
 
 
+
 Event ID 0012		C<-S	Signal that sent message was accepted
 
 					messageId,
@@ -32,7 +35,8 @@ Event ID 0012		C<-S	Signal that sent message was accepted
 					data,
 					bonusData
 
-### UNIMPLEMENTED ###
+
+
 Event ID 0013		C->S	Sending a request for old messages
 
 userId,
@@ -42,7 +46,7 @@ pageSize,
 pageNumber,
 
 
-### UNIMPLEMENTED ###
+
 Event ID 0014		C<-S	Fulfilling a request for old messages
 
 					[{
@@ -55,3 +59,27 @@ Event ID 0014		C<-S	Fulfilling a request for old messages
 					}]
 
 
+
+### UNIMPLEMENTED ###
+Event ID 0020		C<-S	Signal that user should be in the recent chats, with the specified timestamp
+
+					other_person_username,
+					timestamp,
+(sender)	<---	type,
+					data,
+					bonusData
+
+
+
+### UNIMPLEMENTED ###
+Event ID 0030		C<-S	Signal for updating activity status of a remote user
+
+()			<---	username,
+					activity
+
+
+
+### UNIMPLEMENTED ###
+Event ID 0031		C->S	Signal for updating activity status of local user
+
+activity		--->	()

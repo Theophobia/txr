@@ -1,12 +1,11 @@
 import {useDispatch, useSelector} from "react-redux";
-import { useNavigate } from "react-router-dom";
-import UserData from "../api/userData";
+import {useNavigate} from "react-router-dom";
 import {AuthState} from "../api/authState";
-import {loginSuccess, logout} from "../state/authActions";
+import {logout} from "../state/authActions";
 import React from "react";
-import Sidebar from "./Sidebar";
 import {sidebarHidden} from "../state/visibilityActions";
-import AvatarComponent from "./AvatarComponent";
+import useActivity from "./useActivity";
+import {ActivityStatusEnum} from "../api/activityStatus";
 
 const MainPage = () => {
 	// const userData: UserData | null = useSelector((state) => state.authentication.userData);
@@ -14,6 +13,7 @@ const MainPage = () => {
 
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
+	const activityHook = useActivity();
 
 	const dispatchLogout = async () => {
 		dispatch(logout());
@@ -34,6 +34,10 @@ const MainPage = () => {
 				?
 				<div>
 					<button onClick={() => dispatchLogout()}>Log out</button>
+					<button onClick={() => activityHook.setActivity("aelar", ActivityStatusEnum.ONLINE)}>Online</button>
+					<button onClick={() => activityHook.setActivity("aelar", ActivityStatusEnum.AWAY)}>Away</button>
+					<button onClick={() => activityHook.setActivity("aelar", ActivityStatusEnum.DO_NOT_DISTURB)}>DND</button>
+					<button onClick={() => activityHook.setActivity("aelar", ActivityStatusEnum.OFFLINE)}>Offline</button>
 				</div>
 				:
 				<>

@@ -46,7 +46,7 @@ const SearchPage = () => {
 			<>
 				<div>
 					<div>
-						<input placeholder={"Password"}
+						<input placeholder={"Username"}
 							   onChange={(event) => setSearchTerm(event.target.value)}
 							   onKeyDownCapture={(event) => {
 								   if (event.key === "Enter") {
