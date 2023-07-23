@@ -65,21 +65,23 @@ Event ID 0020		C<-S	Signal that user should be in the recent chats, with the spe
 
 					other_person_username,
 					timestamp,
-(sender)	<---	type,
+()			<---	type,
 					data,
 					bonusData
 
 
 
 ### UNIMPLEMENTED ###
-Event ID 0030		C<-S	Signal for updating activity status of a remote user
+Event ID 0030		C->S	Request activity status of remote users
 
-()			<---	username,
-					activity
+[usernames]	--->	()
 
 
 
 ### UNIMPLEMENTED ###
-Event ID 0031		C->S	Signal for updating activity status of local user
+Event ID 0031		C<-S	Signal for updating activity status of a remote users
 
-activity		--->	()
+					data: [{
+()			<---		username,
+						activity
+					}]

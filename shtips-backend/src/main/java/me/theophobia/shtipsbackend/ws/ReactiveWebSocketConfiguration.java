@@ -1,5 +1,6 @@
 package me.theophobia.shtipsbackend.ws;
 
+import me.theophobia.shtipsbackend.controller.WebSocketController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

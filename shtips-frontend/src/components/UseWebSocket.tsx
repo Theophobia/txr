@@ -2,12 +2,15 @@ import React, {useEffect, useState} from "react";
 import {AuthState} from "../api/authState";
 import {useSelector} from "react-redux";
 import Message, {MessageStatus} from "../api/message";
-import {Event1, Event10, Event12, Event14} from "../api/event";
+import {Event1, Event10, Event12, Event14, Event31} from "../api/event";
 
 const useWebSocket = (props: {
-	onNewMessage: (msg: Message) => void,
-	onMessageConfirm: (event12: Event12) => void,
-	onMessageFetched: (event14: Event14) => void,
+	slot: number,
+	channels: string[]
+	onNewMessage?: (msg: Message) => void,
+	onMessageConfirm?: (event12: Event12) => void,
+	onMessageFetched?: (event14: Event14) => void,
+	onActivityUpdate?: (event31: Event31) => void,
 }) => {
 	const [socket, setSocket] = useState<WebSocket | null>(null);
 
@@ -21,8 +24,10 @@ const useWebSocket = (props: {
 			// Send the authentication token to the server
 			if (auth.token && auth.userData) {
 				const event1: Event1 = {
-					token: auth.token,
 					userId: auth.userData.userId,
+					slot: props.slot,
+					token: auth.token,
+					channels: props.channels,
 				}
 
 				newSocket.send("0001" + JSON.stringify(event1));
@@ -64,7 +69,9 @@ const useWebSocket = (props: {
 							bonusData: event10.bonusData,
 						}
 
-						props.onNewMessage(msg);
+						if (props.onNewMessage) {
+							props.onNewMessage(msg);
+						}
 						break;
 					}
 
@@ -72,7 +79,9 @@ const useWebSocket = (props: {
 						const event12: Event12 = JSON.parse(data);
 						console.info("Parsed event12:", event12);
 
-						props.onMessageConfirm(event12);
+						if (props.onMessageConfirm) {
+							props.onMessageConfirm(event12);
+						}
 						break;
 					}
 
@@ -80,7 +89,19 @@ const useWebSocket = (props: {
 						const event14: Event14 = JSON.parse(data);
 						console.info("Parsed event14:", event14);
 
-						props.onMessageFetched(event14);
+						if (props.onMessageFetched) {
+							props.onMessageFetched(event14);
+						}
+						break;
+					}
+
+					case 31: {
+						const event31: Event31 = JSON.parse(data);
+						console.info("Parsed event31:", event31);
+
+						if (props.onActivityUpdate) {
+							props.onActivityUpdate(event31);
+						}
 						break;
 					}
 

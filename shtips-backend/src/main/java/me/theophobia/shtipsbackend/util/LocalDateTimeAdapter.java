@@ -1,4 +1,4 @@
-package me.theophobia.shtipsbackend;
+package me.theophobia.shtipsbackend.util;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;

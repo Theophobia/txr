@@ -74,12 +74,12 @@ public final class ChatController {
 		msg.setData(message);
 		msg.setType(MessageDataType.TEXT);
 
-		System.out.println("msg = " + msg);
+//		System.out.println("msg = " + msg);
 		messageService.save(msg);
 
 		WebSocketStore webSocketStore = WebSocketStore.getInstance();
-		System.out.println("UserSessionMap = " + webSocketStore.getUserSessionMap().toString());
-		webSocketStore.sendMessage(msg.getReceiver(), "0001" + msg.toAnonymousSenderMessage().json());
+//		webSocketStore.print();
+		webSocketStore.sendMessage(msg.getReceiver(), "0001", msg.toAnonymousSenderMessage().json());
 
 		return ResponseEntity.ok().build();
 	}

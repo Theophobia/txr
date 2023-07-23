@@ -7,6 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@ToString
 public final class Tuple4<A, B, C, D> {
 	private A a = null;
 	private B b = null;

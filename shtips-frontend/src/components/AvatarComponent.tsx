@@ -40,28 +40,33 @@ const AvatarComponent = (props: {username: string}) => {
         if (activity && activity.remote) {
             // console.log(activity.remote);
             if (activity.remote[props.username] !== undefined) {
-                // console.log("Setting activity color", activity.remote[props.username]);
-                setActivityColor(activityToColor(activity.remote[props.username]));
+                console.log("REMOTE");
+                const a: ActivityStatusEnum = activity.remote[props.username];
+                console.log(a);
+                setActivityColor(activityToColor(a));
                 return;
             }
 
             if (auth.userData === null) {
                 // console.log("Setting activity color OFFLINE");
-                setActivityColor(activityToColor(ActivityStatusEnum.OFFLINE));
+                const a: ActivityStatusEnum = ActivityStatusEnum.OFFLINE;
+                setActivityColor(activityToColor(a));
                 return;
             }
 
             if (auth.userData.username === props.username) {
                 // console.log("Setting activity color", activity.local)
-                setActivityColor(activityToColor(activity.local));
+                const a: ActivityStatusEnum = activity.local;
+                setActivityColor(activityToColor(a));
                 return;
             }
 
             // console.log("Setting activity color OFFLINE");
-            setActivityColor(activityToColor(ActivityStatusEnum.OFFLINE));
+            const a: ActivityStatusEnum = ActivityStatusEnum.OFFLINE;
+            setActivityColor(activityToColor(a));
         }
 
-    }, [props.username, activity.local, auth]);
+    }, [props.username, activity.local, activity.remote, auth]);
 
     return <>
         <div style={{

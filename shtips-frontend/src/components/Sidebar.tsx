@@ -8,6 +8,10 @@ import RecentChat from "../api/recentChat";
 import {logout} from "../state/authActions";
 import {apiChatRecent} from "../util/query";
 import AvatarComponent from "./AvatarComponent";
+import useWebSocket from "./UseWebSocket";
+import Message, {MessageStatus} from "../api/message";
+import {Event12, Event14, Event30, Event31, Event31Data} from "../api/event";
+import useActivity from "./useActivity";
 
 const Sidebar = () => {
 	const [recentChats, setRecentChats] = useState<RecentChat[]>([]);
@@ -17,10 +21,36 @@ const Sidebar = () => {
 
 	const auth: AuthState = useSelector((state) => state.auth);
 	const show: boolean = useSelector((state) => state.visibility.isSidebarVisible);
+	const activity = useActivity();
+
+	const {send} = useWebSocket({
+		slot: 0,
+		channels: ["0010", "0012", "0020", "0031"],
+		onActivityUpdate: (event31: Event31) => {
+			const len = event31.data.length;
+			for (let i = 0; i < len; i++) {
+				const curr: Event31Data = event31.data[i];
+				activity.setActivity(curr.username, curr.activity);
+			}
+		},
+	});
 
 	useEffect(() => {
-		getRecentChats()
+		getRecentChats();
 	}, [auth]);
+
+	useEffect(() => {
+		if (recentChats && recentChats.length != 0 && auth && auth.userData) {
+			const usernames = recentChats.map(value => value.other_person_username);
+			usernames.push(auth.userData.username);
+
+			const event30: Event30 = {
+				userId: auth.userData.userId,
+				usernames: usernames,
+			};
+			send("0030" + JSON.stringify(event30));
+		}
+	}, [recentChats])
 
 	async function getRecentChats() {
 		try {

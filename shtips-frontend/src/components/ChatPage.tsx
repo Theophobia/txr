@@ -24,6 +24,8 @@ const ChatPage = () => {
 	const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
 	const {send} = useWebSocket({
+		slot: 1,
+		channels: ["0010", "0012", "0014", "0031"],
 		onNewMessage: (msg: Message) => {
 			if (msg) {
 				if (msg.sender === usernameRef.current) {

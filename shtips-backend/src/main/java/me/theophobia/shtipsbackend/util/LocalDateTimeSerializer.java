@@ -1,4 +1,4 @@
-package me.theophobia.shtipsbackend;
+package me.theophobia.shtipsbackend.util;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

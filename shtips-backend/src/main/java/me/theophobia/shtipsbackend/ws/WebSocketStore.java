@@ -1,6 +1,5 @@
 package me.theophobia.shtipsbackend.ws;
 
-import jakarta.websocket.CloseReason;
 import jakarta.websocket.Session;
 import me.theophobia.shtipsbackend.service.AuthService;
 import me.theophobia.shtipsbackend.service.UserService;
@@ -10,18 +9,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 
 @Component
 public class WebSocketStore {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketStore.class);
+	private static final int MAX_SLOTS = 2;
 
-	private final Map<User, Session> userSessionMap = new HashMap<>();
+	private final UserSessionMap userSessionMap = new UserSessionMap();
 
 	private final UserService userService;
 	private final AuthService authService;
@@ -45,11 +42,12 @@ public class WebSocketStore {
 		}
 	}
 
-	public Map<User, Session> getUserSessionMap() {
-		return userSessionMap;
-	}
+	public Optional<User> addSession(String token, int slot, Session session, List<String> channels) {
+		if (slot >= MAX_SLOTS) {
+			LOGGER.error("slot is {} but MAX_SLOTS is {}", slot, MAX_SLOTS);
+			return Optional.empty();
+		}
 
-	public Optional<User> addSession(String token, Session session) {
 		Optional<User> optUser = authService.getUserByToken(token);
 		if (optUser.isEmpty()) {
 			return Optional.empty();
@@ -60,61 +58,32 @@ public class WebSocketStore {
 			return Optional.empty();
 		}
 
-		if (userSessionMap.containsKey(user)) {
-			Session s = userSessionMap.get(user);
-			try {
-				s.close(new CloseReason(CloseReason.CloseCodes.NO_STATUS_CODE, "Multiple connections"));
-			}
-			catch (IOException ignored) {}
-		}
+		userSessionMap.addSession(user, slot, session, channels);
 
-		userSessionMap.put(user, session);
 		return Optional.of(user);
 	}
 
-	public boolean sendMessage(User user, String message) {
-		LOGGER.info(user.toString());
-		userSessionMap.forEach((key, value) -> LOGGER.info(key.toString()));
-
-		if (!userSessionMap.containsKey(user)) {
-			LOGGER.info("containsKey return false");
-			return false;
+	public boolean sendMessage(User user, String channel, String message) {
+		if (channel.length() != 4) {
+			throw new IllegalArgumentException("channel.length() != 4");
 		}
-
-		Session s = userSessionMap.get(user);
-		try {
-			s.getBasicRemote().sendText(message);
-			LOGGER.info("Found user {} and sending str {}", user.getUsername(), message);
-			return true;
-		}
-		catch (Exception e) {
-			LOGGER.info("catch return false");
-			return false;
-		}
+		return userSessionMap.sendMessage(user, channel, message);
 	}
 
-	public boolean sendMessage(User user, Object obj) {
-		return sendMessage(user, obj.toString());
-	}
-
-	public boolean sendMessage(long userId, String message) {
+	public boolean sendMessage(long userId, String channel, String message) {
 		Optional<User> optUser = userService.getUser(userId);
 		if (optUser.isEmpty()) {
 			return false;
 		}
 		User user = optUser.get();
-		return sendMessage(user, message);
+		return sendMessage(user, channel, message);
 	}
 
 	public void deleteBySession(Session session) {
-		User user = null;
-		Iterator<Map.Entry<User, Session>> iter = userSessionMap.entrySet().iterator();
-		while (iter.hasNext()) {
-			Map.Entry<User, Session> entry = iter.next();
-			if (entry.getValue().equals(session)) {
-				iter.remove();
-				break;
-			}
-		}
+		userSessionMap.deleteSession(session);
+	}
+
+	public void print() {
+		System.out.println("userSessionMap = " + userSessionMap);
 	}
 }
