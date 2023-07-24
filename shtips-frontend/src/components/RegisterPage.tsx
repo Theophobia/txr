@@ -6,7 +6,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {sidebarShown} from "../state/visibilityActions";
 import {AuthState} from "../api/authState";
 import {apiUserInfo, apiUserLogin, apiUserRegister} from "../util/query";
-import "./RegisterPage.css";
+import "./RegisterPage.scss";
 
 function RegisterPage() {
 	const [email, setEmail] = useState<string | null>(null);

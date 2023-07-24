@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {ActivityStatusEnum, ActivityStatusState, activityToColor} from "../api/activityStatus";
 import {AuthState} from "../api/authState";
 
-const AvatarComponent = (props: {username: string}) => {
+const AvatarComponent = (props: {username: string, hasActivity?: boolean, imgRadius?: number, outerRadius?: number, innerRadius?: number, offsetTop?: number, offsetLeft?: number}) => {
 
     const activity: ActivityStatusState = useSelector((state) => state.activity);
     const auth: AuthState = useSelector((state) => state.auth);
@@ -11,12 +11,12 @@ const AvatarComponent = (props: {username: string}) => {
 
     const [activityColor, setActivityColor] = useState<string>("");
 
-    const imgRadius = 36;
-    const outerRadius = 14;
-    const innerRadius = 10;
+    const imgRadius = props.imgRadius ? props.imgRadius : 36;
+    const outerRadius = props.outerRadius ? props.outerRadius : 14;
+    const innerRadius = props.innerRadius ? props.innerRadius : 10;
 
-    const offsetTop = 24;
-    const offsetLeft = 28;
+    const offsetTop = props.offsetTop ? props.offsetTop : 24;
+    const offsetLeft = props.offsetLeft ? props.offsetLeft : 28;
 
     const getInnerTop = () => {
         return `calc(${offsetTop}px - 2px - ${imgRadius}px + ${(outerRadius - innerRadius)/4}px)`;
@@ -34,15 +34,14 @@ const AvatarComponent = (props: {username: string}) => {
     }
 
     useEffect(() => {
-        // console.log("activity", activity);
-        // console.log("activity.remote", activity.remote);
-        // console.log("activity.local", activity.local);
+        // console.info("activity.remote[props.username]:", activity.remote[props.username]);
+        if (!(props.hasActivity || props.hasActivity === undefined)) {
+            return;
+        }
+
         if (activity && activity.remote) {
-            // console.log(activity.remote);
             if (activity.remote[props.username] !== undefined) {
-                console.log("REMOTE");
                 const a: ActivityStatusEnum = activity.remote[props.username];
-                console.log(a);
                 setActivityColor(activityToColor(a));
                 return;
             }
@@ -66,7 +65,7 @@ const AvatarComponent = (props: {username: string}) => {
             setActivityColor(activityToColor(a));
         }
 
-    }, [props.username, activity.local, activity.remote, auth]);
+    }, [props.username, activity.local, activity.remote, activity.remote[props.username], auth]);
 
     return <>
         <div style={{
@@ -76,39 +75,56 @@ const AvatarComponent = (props: {username: string}) => {
             minHeight: imgRadius + "px",
             position: "relative"
         }}>
-            <img style={{
-                borderRadius: "100px",
-                maxWidth: imgRadius + "px",
-                minWidth: imgRadius + "px",
-                maxHeight: imgRadius + "px",
-                minHeight: imgRadius + "px",
-            }}
-                 src={`http://localhost:8080/api/user/avatar?username=${props.username}`}
-                 alt={"Av"}
-            />
-            <div style={{
-                position: "relative",
-                top: getInnerTop(),
-                left: getInnerLeft(),
-                width: innerRadius + "px",
-                height: innerRadius + "px",
-                backgroundColor: activityColor,
-                borderRadius: "100px",
-                zIndex: 2,
-                transition: "background-color 0.2s ease-in",
-            }}/>
-            <div style={{
-                position: "relative",
-                top: getOuterTop(),
-                left: getOuterLeft(),
-                maxWidth: outerRadius + "px",
-                maxHeight: outerRadius + "px",
-                minWidth: outerRadius + "px",
-                minHeight: outerRadius + "px",
-                backgroundColor: "#3e3e3e",
-                borderRadius: "100px",
-                zIndex: 1,
-            }}/>
+            {props.username.length === 0 ?
+                <div style={{
+                    borderRadius: "100px",
+                    maxWidth: imgRadius + "px",
+                    minWidth: imgRadius + "px",
+                    maxHeight: imgRadius + "px",
+                    minHeight: imgRadius + "px",
+                }}/>
+                :
+                <img style={{
+                    borderRadius: "100px",
+                    maxWidth: imgRadius + "px",
+                    minWidth: imgRadius + "px",
+                    maxHeight: imgRadius + "px",
+                    minHeight: imgRadius + "px",
+                }}
+                     src={`http://localhost:8080/api/user/avatar?username=${props.username}`}
+                     alt={"Av"}
+                />
+            }
+
+            {props.hasActivity || props.hasActivity === undefined ?
+                <>
+                    <div style={{
+                        position: "relative",
+                        top: getInnerTop(),
+                        left: getInnerLeft(),
+                        width: innerRadius + "px",
+                        height: innerRadius + "px",
+                        backgroundColor: activityColor,
+                        borderRadius: "100px",
+                        zIndex: 2,
+                        transition: "background-color 0.2s ease-in",
+                    }}/>
+                    <div style={{
+                        position: "relative",
+                        top: getOuterTop(),
+                        left: getOuterLeft(),
+                        maxWidth: outerRadius + "px",
+                        maxHeight: outerRadius + "px",
+                        minWidth: outerRadius + "px",
+                        minHeight: outerRadius + "px",
+                        backgroundColor: "#3e3e3e",
+                        borderRadius: "100px",
+                        zIndex: 1,
+                    }}/>
+                </>
+                :
+                <></>
+            }
         </div>
 	</>;
 };

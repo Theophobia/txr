@@ -3,7 +3,7 @@ import {AuthState} from "../api/authState";
 import {apiUserSearch} from "../util/query";
 import {useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
-import "./SearchPage.css";
+import "./SearchPage.scss";
 
 const SearchPage = () => {
 

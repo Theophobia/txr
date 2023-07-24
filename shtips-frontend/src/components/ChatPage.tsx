@@ -1,13 +1,14 @@
 import {useNavigate, useParams} from "react-router-dom";
 import React, {useEffect, useRef, useState} from "react";
 import Message, {MessageStatus} from "../api/message";
-import "./ChatPage.css";
+import "./ChatPage.scss";
 import {logout} from "../state/authActions";
 import {AuthState} from "../api/authState";
 import {useDispatch, useSelector} from "react-redux";
 import {apiChatMessageGet} from "../util/query";
 import useWebSocket from "./UseWebSocket";
 import {Event11, Event12, Event13, Event14} from "../api/event";
+import AvatarComponent from "./AvatarComponent";
 
 const ChatPage = () => {
 	const {username} = useParams();
@@ -253,7 +254,7 @@ const ChatPage = () => {
 	});
 
 	return (
-		<>{!auth.isLoggedIn
+		<>{!auth.isLoggedIn || auth.userData === null
 			?
 			<>
 				<div>You are not logged in! You should return to the login page.</div>
@@ -288,10 +289,20 @@ const ChatPage = () => {
 								<div key={m.timestamp.concat(m.sender)}
 									 className={m.sender === username ? "msg_outer_box_other" : "msg_outer_box_me"}
 								>
+									{/* Determine if local or remote message */}
 									{m.sender === username ?
-										<img className={"msg_img msg_img_other"} src={`http://localhost:8080/api/user/avatar?username=${username}`}></img>
+										// Check if next message is from the same sender
+										// If it is, don't add an avatar
+										// The last message in a series should have the avatar
+										(i + 1 < messages.length && messages[i + 1].sender === m.sender) ?
+											<AvatarComponent username={""} hasActivity={false}/>
+											:
+											<AvatarComponent username={username} hasActivity={false}/>
 										:
-										<img className={"msg_img msg_img_me"} src={`http://localhost:8080/api/user/avatar?username=${auth.userData?.username}`}></img>
+										(i + 1 < messages.length && messages[i + 1].sender === m.sender) ?
+											<AvatarComponent username={""} hasActivity={false}/>
+											:
+											<AvatarComponent username={auth.userData ? auth.userData.username : ""} hasActivity={false}/>
 									}
 									<div className={m.sender === username ? "msg_any msg_other" : "msg_any msg_me"}>
 										{m.data}

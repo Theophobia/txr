@@ -1,0 +1,10 @@
+@import "../colors";
+
+.search_result {
+	border-radius: 4px;
+	transition: background-color 0.3s;
+}
+
+.search_result:hover {
+	background-color: $voluptas;
+}

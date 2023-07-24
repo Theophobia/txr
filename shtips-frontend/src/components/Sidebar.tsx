@@ -2,7 +2,7 @@ import {AuthState} from "../api/authState";
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
-import "./Sidebar.css"
+import "./Sidebar.scss"
 
 import RecentChat from "../api/recentChat";
 import {logout} from "../state/authActions";
@@ -36,21 +36,53 @@ const Sidebar = () => {
 	});
 
 	useEffect(() => {
+		let isMounted = true;
+
+		const fetchActivity = async () => {
+			while (isMounted) {
+				try {
+					if (recentChats && recentChats.length != 0 && auth && auth.userData) {
+						const usernames = recentChats.map(value => value.other_person_username);
+						usernames.push(auth.userData.username);
+
+						const event30: Event30 = {
+							userId: auth.userData.userId,
+							usernames: usernames,
+						};
+
+						send("0030" + JSON.stringify(event30));
+					}
+					await new Promise((r) => setTimeout(r, 30_000));
+				}
+				catch (error) {
+					console.error(error);
+				}
+			}
+		}
+
+		fetchActivity();
+
+		return () => {
+			isMounted = false;
+		}
+	});
+
+	useEffect(() => {
 		getRecentChats();
 	}, [auth]);
 
-	useEffect(() => {
-		if (recentChats && recentChats.length != 0 && auth && auth.userData) {
-			const usernames = recentChats.map(value => value.other_person_username);
-			usernames.push(auth.userData.username);
-
-			const event30: Event30 = {
-				userId: auth.userData.userId,
-				usernames: usernames,
-			};
-			send("0030" + JSON.stringify(event30));
-		}
-	}, [recentChats])
+	// useEffect(() => {
+	// 	if (recentChats && recentChats.length != 0 && auth && auth.userData) {
+	// 		const usernames = recentChats.map(value => value.other_person_username);
+	// 		usernames.push(auth.userData.username);
+	//
+	// 		const event30: Event30 = {
+	// 			userId: auth.userData.userId,
+	// 			usernames: usernames,
+	// 		};
+	// 		send("0030" + JSON.stringify(event30));
+	// 	}
+	// }, [recentChats])
 
 	async function getRecentChats() {
 		try {
@@ -103,6 +135,10 @@ const Sidebar = () => {
 								 onClick={() => navigate("/search")}
 							>
 								Search
+							</div>
+							<div className={"search_spacer"}/>
+							<div className={"search_results_container"}>
+
 							</div>
 						</div>
 						<div className={"sidebar_chats"}>
