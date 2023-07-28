@@ -10,10 +10,10 @@
 	</parent>
 
 	<groupId>me.theophobia</groupId>
-	<artifactId>shtips-backend</artifactId>
+	<artifactId>txr</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>shtips-backend</name>
-	<description>shtips-backend</description>
+	<name>txr</name>
+	<description>Chat application focused on simplicity</description>
 
 	<properties>
 		<java.version>17</java.version>
