@@ -1,4 +1,5 @@
 @import "../colors";
+@import "../styles";
 
 .msg_any {
 	border-radius: 5px;
@@ -8,7 +9,7 @@
 	display: inline-block;
 	max-width: 60%;
 
-	font-family: Arial, sans-serif;
+	font-family: $fonts;
 	overflow: auto;
 	word-wrap: break-word;
 }
@@ -55,7 +56,7 @@
 
 	user-select: none;
 
-	font-family: Arial, sans-serif;
+	font-family: $fonts;
 	background-color: $nostrum;
 	color: $nemo;
 }
@@ -87,7 +88,7 @@
 	height: calc(9vh - 30px);
 	width: calc(60vw);
 
-	font-family: Arial, sans-serif;
+	font-family: $fonts;
 	resize: none;
 
 	display: flex;
@@ -110,14 +111,6 @@
 	user-select: none;
 }
 
-.msg_img_other {
-
-}
-
-.msg_img_me {
-
-}
-
 .chat_fodder {
 	width: 100%;
 	height: 30vh;
@@ -135,7 +128,7 @@
 .chat_get_more_messages_button {
 	background-color: $nostrum;
 	color: $nemo;
-	font-family: Arial, sans-serif;
+	font-family: $fonts;
 	font-size: 0.9em;
 
 	display: flex;

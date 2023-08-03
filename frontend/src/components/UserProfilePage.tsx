@@ -5,6 +5,8 @@ import React, {useEffect, useState} from "react";
 import useWebSocket from "./UseWebSocket";
 import Message, {MessageStatus} from "../api/message";
 import {Event12, Event14} from "../api/event";
+import AvatarComponent from "./AvatarComponent";
+import "./UserProfilePage.scss";
 
 const UserProfilePage = () => {
 
@@ -14,12 +16,6 @@ const UserProfilePage = () => {
 	const auth: AuthState = useSelector((state) => state.auth);
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
-
-	const {send} = useWebSocket({
-		onNewMessage: (msg: Message) => {},
-		onMessageConfirm: (event12: Event12) => {},
-		onMessageFetched: (event14: Event14) => {}
-	});
 
 	const formatEmail = (email: string) => {
 		const parts = email.split('@');
@@ -41,15 +37,26 @@ const UserProfilePage = () => {
 
 			</>
 		:
-			<div>
-				<img className={"msg_img_other"} src={`http://localhost:8080/api/user/avatar?username=${auth.userData.username}`}></img>
-				<div>
-					Username: {auth.userData.username}
+			<div className={"profile_container_1"}>
+				<div className={"profile_container_2"}>
+					<AvatarComponent username={auth.userData.username} hasActivity={false} imgRadius={64}/>
+
+					<div style={{paddingBottom: "10px"}}/>
+
+					<div className={"profile_container_3"}>
+						<div className={"profile_column_1"}>
+							<div>Username:</div>
+							<div>Email:</div>
+						</div>
+						<div className={"profile_column_spacer"}/>
+						<div className={"profile_column_2"}>
+							<div>{auth.userData.username}</div>
+							<div>{formattedEmail}</div>
+						</div>
+					</div>
+
+					<button onClick={() => setShowEmail(!showEmail)}>Reveal</button>
 				</div>
-				<div>
-					Email: {formattedEmail}
-				</div>
-				<button onClick={() => setShowEmail(!showEmail)}>Reveal</button>
 			</div>
 	}</>;
 };

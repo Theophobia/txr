@@ -129,7 +129,13 @@ const Sidebar = () => {
 				<>
 					<div className={"sidebar"}>
 						<div className={"search_root"}>
-							<AvatarComponent username={auth.userData.username}/>
+							<div className={"local_user_container"}
+								 onClick={() => navigate("/profile")}>
+								<AvatarComponent username={auth.userData.username}/>
+								<div className={"flex_centered"}>
+									{auth.userData.username}
+								</div>
+							</div>
 							<div style={{paddingBottom: "10px"}}/>
 							<div className={"search_input"}
 								 onClick={() => navigate("/search")}

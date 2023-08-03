@@ -1,11 +1,12 @@
 @import "../colors";
+@import "../styles";
 
 .sidebar {
 	min-width: 120px;
 	max-width: 120px;
 	height: 100%;
 
-	font-family: Arial, monospace;
+	font-family: $fonts;
 
 	/*box-shadow: 3px 0 10px 3px #d7d7d7;*/
 	background-color: $nostrum;
@@ -50,7 +51,7 @@
 	user-select: none;
 
 	border-radius: 4px;
-	transition: background-color 0.3s;
+	transition: background-color 0.1s;
 }
 
 .search_input:hover {
@@ -98,5 +99,23 @@
 	overflow: hidden;
 
 	border-radius: 3px;
+	background-color: $voluptas;
+}
+
+.local_user_container {
+	border: 0 solid $fuga;
+	padding: 4px 4px 4px;
+	border-radius: 7px;
+
+	white-space: nowrap;
+	overflow: hidden;
+
+	display: flex;
+
+	user-select: none;
+	transition: background-color 0.1s ease-in-out;
+}
+
+.local_user_container:hover {
 	background-color: $voluptas;
 }

@@ -1,0 +1,33 @@
+@import "../colors";
+@import "../styles";
+
+.profile_container_1 {
+	width: 100%;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.profile_container_2 {
+	margin: 20px;
+	padding: 20px;
+
+	font-family: $fonts;
+	background-color: $nostrum;
+	color: $nemo;
+
+	border-radius: 10px;
+}
+
+.profile_container_3 {
+	display: flex;
+}
+
+.profile_column_spacer {
+	width: 20px;
+}
+
+.profile_column_1 {
+	user-select: none;
+}

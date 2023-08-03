@@ -11,6 +11,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -139,7 +144,8 @@ public final class UserController {
 
 	@GetMapping("/avatar")
 	public ResponseEntity<?> getAvatar(
-		@RequestParam String username
+		@RequestParam String username,
+		@RequestParam Optional<Integer> size
 	) {
 		Optional<User> optUser = userService.getUserByUsername(username);
 		if (optUser.isEmpty()) {
@@ -159,6 +165,20 @@ public final class UserController {
 		// Set the appropriate headers
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.IMAGE_JPEG);
+
+		if (size.isPresent() && size.get() != 36) {
+			try {
+				BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(userAvatar.getImageData()));
+				bufferedImage = UserAvatar.resize(bufferedImage, size.get(), size.get());
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ImageIO.write(bufferedImage, "png", baos);
+
+				return ResponseEntity.ok().headers(headers).body(baos.toByteArray());
+			}
+			catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
 
 		return ResponseEntity.ok().headers(headers).body(userAvatar.getImageData36());
 	}

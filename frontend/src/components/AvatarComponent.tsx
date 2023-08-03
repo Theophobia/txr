@@ -91,7 +91,7 @@ const AvatarComponent = (props: {username: string, hasActivity?: boolean, imgRad
                     maxHeight: imgRadius + "px",
                     minHeight: imgRadius + "px",
                 }}
-                     src={`http://localhost:8080/api/user/avatar?username=${props.username}`}
+                     src={`http://localhost:8080/api/user/avatar?username=${props.username}&size=${imgRadius}`}
                      alt={"Av"}
                 />
             }

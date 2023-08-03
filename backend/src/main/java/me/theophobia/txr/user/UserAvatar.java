@@ -75,7 +75,7 @@ public final class UserAvatar {
 		}
 	}
 
-	private static BufferedImage resize(BufferedImage originalImage, int newWidth, int newHeight) {
+	public static BufferedImage resize(BufferedImage originalImage, int newWidth, int newHeight) {
 		// Create a new BufferedImage with the desired size
 		BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, originalImage.getType());
 
